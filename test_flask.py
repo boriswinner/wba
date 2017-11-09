@@ -36,12 +36,12 @@ def mainpage():
     tablesList = []
     for i in tables:
         tablesList.append(str(i)[2:-4])
-    return render_template("picker.html", tables=tablesList)
+    return  render_template("index.html") + render_template("picker.html", tables=tablesList)
 
 @app.route("/view_table", methods=['GET', 'POST'])
 def viewTable():
     tableName = request.args.get("tablespicker")
-    header = "<h1>Viewing table: " + tableName + "</h1>"
+    header = "<h3>Viewing table: " + tableName + "</h3>"
     sheduleDB.connectToDatabase()
     cur = sheduleDB.cur
     tableColumns = getTableColumns(tableName, cur)
