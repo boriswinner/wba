@@ -5,4 +5,10 @@
 
 {% block content %}
   {% include 'picker.html' %}
+  {{table}}
+  <div class="container">
+  <h2>Viewing table {{tableName}}:</h2>
+  {% include 'tableGen.html' %}
+</div>
+
 {% endblock %}

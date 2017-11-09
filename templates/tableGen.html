@@ -1,0 +1,18 @@
+  <table class="table table-striped">
+    <thead>
+      <tr>
+	    {% for i in columnNames %}
+        <th>{{i[0]}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+	  {% for i in tableData %}
+      <tr>
+		{% for j in i %}
+        <td>{{j}}</td>
+		{% endfor %}  
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>

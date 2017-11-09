@@ -1,9 +1,9 @@
 <div class="container" align = "center">
 <h3>Select table to view:</h3>
-<form class="form-inline" method="GET" action="{{ url_for('viewTable') }}">
+<form class="form-inline" method="GET" action="{{pickerURL}}">
     <div class="input-group">
-		<select name="tablespicker" class="selectpicker form-control">
-		{% for i in tables %}
+		<select name="{{pickerName}}" class="selectpicker form-control">
+		{% for i in pickerElements %}
 			<option value={{i}}>{{i}}</option>
 		{% endfor %}
 		</select>
