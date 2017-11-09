@@ -4,46 +4,53 @@ from flask import render_template
 from flask import request
 app = Flask(__name__)
 
-@app.route("/", methods = ['GET'])
-def mainpage():
-    SEARCHFORM = """<h1>Search For Student Name</h1> 
-    <form> 
-        <input name = 'name' type = 'text'> 
-        <input type = 'submit'> 
-    </form>"""
-    GETTABLES = """SELECT a.RDB$RELATION_NAME
+#constants
+GETTABLES = """SELECT a.RDB$RELATION_NAME
     FROM RDB$RELATIONS a
     WHERE RDB$SYSTEM_FLAG = 0 AND RDB$RELATION_TYPE = 0
         """
 
-    con = fdb.connect(dsn='BASE.FDB', user='sysdba', password='masterkey', charset='UTF8')
-    searchname = request.args.get('name','')
-    cur = con.cursor()
-    query = "select * from teachers"
-    if len(searchname) != 0:
-        query += " WHERE name like \'%" + searchname + "%\'"
+class dbConnection:
+    connected = 0
+    def connectToDatabase(self):
+        if (not self.connected):
+            self.con = fdb.connect(dsn='BASE.FDB', user='sysdba', password='masterkey', charset='UTF8')
+            self.cur = self.con.cursor()
+            self.connected = 1
+
+sheduleDB = dbConnection()
+
+def getTableColumns(table, cur):
+    query = """select rdb$field_name 
+from rdb$relation_fields
+where rdb$relation_name= '""" + table + "'"
     cur.execute(query)
-    f = cur.fetchall()
-    s = ""
-    for i in f:
-        s += str(i) + '\r\n'
+    return cur.fetchall()
+
+@app.route("/", methods = ['GET'])
+def mainpage():
+    sheduleDB.connectToDatabase()
+    cur = sheduleDB.cur
     cur.execute(GETTABLES)
-    f1 = cur.fetchall()
-    f1_list = []
-    for i in f1:
-        f1_list.append(str(i)[2:-4])
-    return render_template("picker.html",
-                           tables=f1_list) + str(f1) + SEARCHFORM + '<pre>' + str(searchname) + '\n' + s + '</pre>'
+    tables = cur.fetchall()
+    tablesList = []
+    for i in tables:
+        tablesList.append(str(i)[2:-4])
+    return render_template("picker.html", tables=tablesList)
 
 @app.route("/view_table", methods=['GET', 'POST'])
 def viewTable():
-    select = request.args.get("tablespicker")
-    con = fdb.connect(dsn='BASE.FDB', user='sysdba', password='masterkey', charset='UTF8')
-    cur = con.cursor()
-    query = "select * from " + select
+    tableName = request.args.get("tablespicker")
+    header = "<h1>Viewing table: " + tableName + "</h1>"
+    sheduleDB.connectToDatabase()
+    cur = sheduleDB.cur
+    tableColumns = getTableColumns(tableName, cur)
+    query = "select * from " + tableName
     cur.execute(query)
-    f = cur.fetchall()
-    s = ""
-    for i in f:
-        s += str(i) + '\r\n'
-    return '<pre>' + s + '</pre>'
+    tableData = cur.fetchall()
+    tableDataString = ""
+    for i in tableColumns:
+        tableDataString += str(i) + '\r\n'
+    for i in tableData:
+        tableDataString += str(i) + '\r\n'
+    return mainpage() + header + '<pre>' + '\r\n' + tableDataString + '</pre>'
