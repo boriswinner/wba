@@ -1,0 +1,1 @@
+"C:\Program Files\Firebird\Firebird_3_0\isql.exe" -i baseGen.sql
