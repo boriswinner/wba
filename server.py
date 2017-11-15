@@ -8,6 +8,7 @@ from flask import request
 
 app = Flask(__name__)
 
+
 @app.route("/", methods=['GET'])
 def mainpage():
     dbconnector.scheduleDB.connect_to_database()

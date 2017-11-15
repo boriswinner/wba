@@ -1,10 +1,12 @@
 import fdb
+
 GETTABLES = """SELECT a.RDB$RELATION_NAME
     FROM RDB$RELATIONS a
     WHERE RDB$SYSTEM_FLAG = 0 AND RDB$RELATION_TYPE = 0"""
 GETCOLUMNNAMES = """select rdb$field_name 
 from rdb$relation_fields
 where rdb$relation_name= '%s'"""
+
 
 class DbConnection:
     connected = 0

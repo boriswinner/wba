@@ -1,18 +1,18 @@
-  <table class="table table-striped">
+<table class="table table-striped">
     <thead>
-      <tr>
-	    {% for i in columnNames %}
-        <th>{{meta[i].name}}</th>
+    <tr>
+        {% for i in columnNames %}
+            <th>{{ meta[i].name }}</th>
         {% endfor %}
-      </tr>
+    </tr>
     </thead>
     <tbody>
-	  {% for i in tableData %}
-      <tr>
-		{% for j in range(columnNames|length) %}
-        <td class="col-md-{{ meta[columnNames[j]].width }}">{{i[j]}}</td>
-		{% endfor %}  
-      </tr>
-      {% endfor %}
+    {% for i in tableData %}
+        <tr>
+            {% for j in range(columnNames|length) %}
+                <td class="col-md-{{ meta[columnNames[j]].width }}">{{ i[j] }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
     </tbody>
-  </table>
+</table>

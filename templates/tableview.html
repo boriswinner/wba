@@ -5,11 +5,11 @@
 
 {% block content %}
     {% include 'picker.html' %}
-    {{table}}
+    {{ table }}
     {% if tableName %}
-    <div class="container">
-        <h2>Viewing table {{tableName}}:</h2>
-        {% include 'tableGen.html' %}
-    </div>
+        <div class="container">
+            <h2>Viewing table {{ tableName }}:</h2>
+            {% include 'tableGen.html' %}
+        </div>
     {% endif %}
 {% endblock %}
