@@ -2,15 +2,15 @@
     <thead>
       <tr>
 	    {% for i in columnNames %}
-        <th>{{i[0]}}</th>
+        <th>{{meta[i].name}}</th>
         {% endfor %}
       </tr>
     </thead>
     <tbody>
 	  {% for i in tableData %}
       <tr>
-		{% for j in i %}
-        <td>{{j}}</td>
+		{% for j in range(columnNames|length) %}
+        <td class="col-md-{{ meta[columnNames[j]].width }}">{{i[j]}}</td>
 		{% endfor %}  
       </tr>
       {% endfor %}
