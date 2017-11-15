@@ -1,14 +1,15 @@
 {% extends "layout.html" %}
 {% block header %}
-  {{ super() }}
+    {{ super() }}
 {% endblock %}
 
 {% block content %}
-  {% include 'picker.html' %}
-  {{table}}
-  <div class="container">
-  <h2>Viewing table {{tableName}}:</h2>
-  {% include 'tableGen.html' %}
-</div>
-
+    {% include 'picker.html' %}
+    {{table}}
+    {% if tableName and tableName.wrk_1_title %}
+    <div class="container">
+        <h2>Viewing table {{tableName}}:</h2>
+        {% include 'tableGen.html' %}
+    </div>
+    {% endif %}
 {% endblock %}

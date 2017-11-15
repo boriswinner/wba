@@ -35,7 +35,7 @@ sheduleDB = DbConnection()
 def mainpage():
     sheduleDB.connectToDatabase()
     sheduleDB.setTablesList()
-    return render_template("index.html", pickerName = 'tablesPicker', pickerURL = url_for('viewTable'),
+    return render_template("tableView.html", pickerName = 'tablesPicker', pickerURL = url_for('viewTable'),
                            pickerElements = sheduleDB.tablesList)
 
 @app.route("/view_table", methods=['GET', 'POST'])
