@@ -1,12 +1,15 @@
 class Field:
-    def __init__(self, type='int', width=1, name='Field', refTable='', refKey='', refName=''):
+    def __init__(self, type='int', width=1, name='Field'):
         self.type = type
         self.width = width
         self.name = name
+
+class refField(Field):
+    def __init__(self, type='int', width=1, name='Field', refTable='', refKey='', refName=''):
+        Field.__init__(self, type, width, name)
         self.refTable = refTable
         self.refKey = refKey
         self.refName = refName
-
 
 class TableMeta:
     def isField(self, i):
@@ -48,13 +51,13 @@ class LessonTypes(TableMeta):
 
 class Sched_Items(TableMeta):
     ID = Field('int', 1, 'id')
-    LESSON_ID = Field('ref', 2, 'Номер пары', 'LESSONS', 'ID', 'NAME')
-    SUBJECT_ID = Field('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
-    AUDIENCE_ID = Field('ref', 1, 'Номер аудитории', 'AUDIENCES', 'ID', 'NAME')
-    GROUP_ID = Field('ref', 1, 'Номер группы', 'GROUPS', 'ID', 'NAME')
-    TEACHER_ID = Field('ref', 2, 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
-    TYPE_ID = Field('ref', 1, 'Тип занятия', 'LESSON_TYPES', 'ID', 'NAME')
-    WEEKDAY_ID = Field('ref', 2, 'День недели', 'WEEKDAYS', 'ID', 'NAME')
+    LESSON_ID = refField('ref', 2, 'Номер пары', 'LESSONS', 'ID', 'NAME')
+    SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
+    AUDIENCE_ID = refField('ref', 1, 'Номер аудитории', 'AUDIENCES', 'ID', 'NAME')
+    GROUP_ID = refField('ref', 1, 'Номер группы', 'GROUPS', 'ID', 'NAME')
+    TEACHER_ID = refField('ref', 2, 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
+    TYPE_ID = refField('ref', 1, 'Тип занятия', 'LESSON_TYPES', 'ID', 'NAME')
+    WEEKDAY_ID = refField('ref', 2, 'День недели', 'WEEKDAYS', 'ID', 'NAME')
 
 
 class Subjects(TableMeta):
@@ -63,13 +66,13 @@ class Subjects(TableMeta):
 
 
 class SubjectGroup(TableMeta):
-    SUBJECT_ID = Field('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
-    GROUP_ID = Field('ref', 2, 'Номер группы', 'GROUPS', 'ID', 'NAME')
+    SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
+    GROUP_ID = refField('ref', 2, 'Номер группы', 'GROUPS', 'ID', 'NAME')
 
 
 class SubjectTeacher(TableMeta):
-    SUBJECT_ID = Field('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
-    TEACHER_ID = Field('ref', 2, 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
+    SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
+    TEACHER_ID = refField('ref', 2, 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
 
 
 class Teachers(TableMeta):
