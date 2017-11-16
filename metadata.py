@@ -5,7 +5,7 @@ class Field:
         self.name = name
 
 class refField(Field):
-    def __init__(self, type='int', width=1, name='Field', refTable='', refKey='', refName=''):
+    def __init__(self, type, width, name, refTable='', refKey='', refName=''):
         Field.__init__(self, type, width, name)
         self.refTable = refTable
         self.refKey = refKey
