@@ -27,7 +27,7 @@ def view_table():
     meta = t.get_meta()
     tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     tableColumns = [str(i[0]).strip() for i in tableColumns]
-    query = queryconstructor.ConstructQuery(tableName)
+    query = queryconstructor.ConstructQuery(t)
     for i in tableColumns:
         if meta[i].type == 'ref':
             query.replaceField(meta[i].refTable, i, meta[i].refKey, meta[i].refName)

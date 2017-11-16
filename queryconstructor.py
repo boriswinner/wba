@@ -8,12 +8,10 @@ LEFTJOIN = " LEFT JOIN %s on %s.%s = %s.%s"
 class ConstructQuery():
     query = ''
 
-    def __init__(self, tableName):
-        self.tableName = tableName
-        t = getattr(metadata, tableName.lower())
-        columns = t.get_fields()
-        columnsString = ','.join([tableName+'.'+str(x) for x in columns])
-        self.query = INITIAL % (columnsString, tableName)
+    def __init__(self, t):
+        self.tableName = type(t).__name__
+        columnsString = ','.join(self.tableName+'.'+ x for x in t.get_fields())
+        self.query = INITIAL % (columnsString, self.tableName)
 
     def replaceField(self, secondTableName, key1, key2, replaceKey):
         self.query += (LEFTJOIN % (secondTableName, self.tableName, key1, secondTableName, key2))

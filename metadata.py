@@ -14,12 +14,14 @@ class refField(Field):
 class TableMeta:
     def isField(self, i):
         return (not callable(getattr(self, i)) and not i.startswith("__") and i.isupper())
+
     def get_meta(self):
         result = {}
         for i in dir(self):
             if self.isField(i):
                 result[i] = getattr(self, i)
         return result
+
     def get_fields(self):
         result = []
         for i in dir(self):
