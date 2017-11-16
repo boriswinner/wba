@@ -1,4 +1,4 @@
-class Meta:
+class Field:
     def __init__(self, type='int', width=1, name='Field', refTable='', refKey='', refName=''):
         self.type = type
         self.width = width
@@ -8,71 +8,79 @@ class Meta:
         self.refName = refName
 
 
-class BaseTable:
+class TableMeta:
+    def isField(self, i):
+        return (not callable(getattr(self, i)) and not i.startswith("__") and i.isupper())
     def get_meta(self):
         result = {}
         for i in dir(self):
-            if not callable(getattr(self, i)) and not i.startswith("__") and i.isupper():
+            if self.isField(i):
                 result[i] = getattr(self, i)
+        return result
+    def get_fields(self):
+        result = []
+        for i in dir(self):
+            if self.isField(i):
+                result.append(i)
         return result
 
 
-class Audiences(BaseTable):
-    ID = Meta('int', '1', 'id')
-    NAME = Meta('string', '2', 'Номер аудитории')
+class Audiences(TableMeta):
+    ID = Field('int', 1, 'id')
+    NAME = Field('string', 2, 'Номер аудитории')
 
 
-class Lessons(BaseTable):
-    ID = Meta('int', '4', 'id')
-    NAME = Meta('string', '8', 'Название занятия')
-    ORDER_NUMBER = Meta('int', '4', 'id')
+class Lessons(TableMeta):
+    ID = Field('int', 4, 'id')
+    NAME = Field('string', 8, 'Название занятия')
+    ORDER_NUMBER = Field('int', 4, 'id')
 
 
-class Groups(BaseTable):
-    ID = Meta('int', '1', 'id')
-    NAME = Meta('string', '2', 'Номер группы')
+class Groups(TableMeta):
+    ID = Field('int', 1, 'id')
+    NAME = Field('string', 2, 'Номер группы')
 
 
-class LessonTypes(BaseTable):
-    ID = Meta('int', '1', 'id')
-    NAME = Meta('string', '2', 'Тип занятия')
+class LessonTypes(TableMeta):
+    ID = Field('int', 1, 'id')
+    NAME = Field('string', 2, 'Тип занятия')
 
 
-class Sched_Items(BaseTable):
-    ID = Meta('int', '1', 'id')
-    LESSON_ID = Meta('ref', '2', 'Номер пары', 'LESSONS', 'ID', 'NAME')
-    SUBJECT_ID = Meta('ref', '2', 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
-    AUDIENCE_ID = Meta('ref', '1', 'Номер аудитории', 'AUDIENCES', 'ID', 'NAME')
-    GROUP_ID = Meta('ref', '1', 'Номер группы', 'GROUPS', 'ID', 'NAME')
-    TEACHER_ID = Meta('ref', '2', 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
-    TYPE_ID = Meta('ref', '1', 'Тип занятия', 'LESSON_TYPES', 'ID', 'NAME')
-    WEEKDAY_ID = Meta('ref', '2', 'День недели', 'WEEKDAYS', 'ID', 'NAME')
+class Sched_Items(TableMeta):
+    ID = Field('int', 1, 'id')
+    LESSON_ID = Field('ref', 2, 'Номер пары', 'LESSONS', 'ID', 'NAME')
+    SUBJECT_ID = Field('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
+    AUDIENCE_ID = Field('ref', 1, 'Номер аудитории', 'AUDIENCES', 'ID', 'NAME')
+    GROUP_ID = Field('ref', 1, 'Номер группы', 'GROUPS', 'ID', 'NAME')
+    TEACHER_ID = Field('ref', 2, 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
+    TYPE_ID = Field('ref', 1, 'Тип занятия', 'LESSON_TYPES', 'ID', 'NAME')
+    WEEKDAY_ID = Field('ref', 2, 'День недели', 'WEEKDAYS', 'ID', 'NAME')
 
 
-class Subjects(BaseTable):
-    ID = Meta('int', '1', 'id')
-    NAME = Meta('string', '2', 'Название предмета')
+class Subjects(TableMeta):
+    ID = Field('int', 1, 'id')
+    NAME = Field('string', 2, 'Название предмета')
 
 
-class SubjectGroup(BaseTable):
-    SUBJECT_ID = Meta('ref', '2', 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
-    GROUP_ID = Meta('ref', '2', 'Номер группы', 'GROUPS', 'ID', 'NAME')
+class SubjectGroup(TableMeta):
+    SUBJECT_ID = Field('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
+    GROUP_ID = Field('ref', 2, 'Номер группы', 'GROUPS', 'ID', 'NAME')
 
 
-class SubjectTeacher(BaseTable):
-    SUBJECT_ID = Meta('ref', '2', 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
-    TEACHER_ID = Meta('ref', '2', 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
+class SubjectTeacher(TableMeta):
+    SUBJECT_ID = Field('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
+    TEACHER_ID = Field('ref', 2, 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
 
 
-class Teachers(BaseTable):
-    ID = Meta('int', '1', 'id')
-    NAME = Meta('string', '2', 'Преподаватель')
+class Teachers(TableMeta):
+    ID = Field('int', 1, 'id')
+    NAME = Field('string', 2, 'Преподаватель')
 
 
-class Weekdays(BaseTable):
-    ID = Meta('int', '1', 'id')
-    NAME = Meta('string', '2', 'День недели')
-    ORDER_NUMBER = Meta('int', '1', 'Порядковый номер')
+class Weekdays(TableMeta):
+    ID = Field('int', 1, 'id')
+    NAME = Field('string', 2, 'День недели')
+    ORDER_NUMBER = Field('int', 1, 'Порядковый номер')
 
 
 audiences = Audiences()
