@@ -18,4 +18,5 @@ class ConstructQuery():
         self.query = self.query.replace(self.tableName + '.' + key1, secondTableName + '.' + replaceKey, 1)
 
     def search(self, colName, searchWord):
-        self.query += SEARCH % (self.tableName+'.'+colName, '%'+searchWord+'%')
+        if len(searchWord) != 0:
+            self.query += SEARCH % (self.tableName+'.'+colName, '%'+searchWord+'%')
