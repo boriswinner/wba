@@ -3,7 +3,7 @@ import metadata
 # constants
 INITIAL = "SELECT %s from %s"
 LEFTJOIN = " LEFT JOIN %s on %s.%s = %s.%s"
-
+SEARCH = " WHERE %s LIKE '%s'"
 
 class ConstructQuery():
     query = ''
@@ -16,3 +16,6 @@ class ConstructQuery():
     def replaceField(self, secondTableName, key1, key2, replaceKey):
         self.query += (LEFTJOIN % (secondTableName, self.tableName, key1, secondTableName, key2))
         self.query = self.query.replace(self.tableName + '.' + key1, secondTableName + '.' + replaceKey, 1)
+
+    def search(self, colName, searchWord):
+        self.query += SEARCH % (self.tableName+'.'+colName, '%'+searchWord+'%')
