@@ -49,6 +49,10 @@
             Conditions:
             <p id = "pConditions"></p>
             <conditionsTag id = "conditionsTag">
+                Order by:
+                {%  with pickerName = orderPickerName, pickerElements = columnPickerElements, selectedName = selectedOrder, onChangeFunc='highlight(this)' %}
+                    {% include 'picker.html' %}
+                {% endwith %}
                 {% for i in range(selectedColumns|length) %}
                     <br>
                     {%  with pickerName = columnPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)' %}

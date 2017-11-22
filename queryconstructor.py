@@ -26,3 +26,6 @@ class ConstructQuery():
         if len(searchWord) != 0:
             self.query += (' AND ', ' WHERE ')[self.query.find("WHERE") == -1]
             self.query += SEARCH % (colName, condition, searchWord)
+
+    def order(self, orderColumn):
+        self.query += ' ORDER BY %s' % (orderColumn)

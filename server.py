@@ -20,6 +20,7 @@ class Constants:
         return result
     tablePickerName = 'tablesPicker'
     columnPickerName = 'columnsPicker'
+    orderPickerName = 'orderPicker'
     conditionsPickerName = 'condition'
     inputName = 'searchString'
     formButtonText = 'View Table'
@@ -47,6 +48,7 @@ def view_table():
     tableName = request.args.get(constants.tablePickerName)
     searchColumn = request.args.getlist(constants.columnPickerName)
     searchString = request.args.getlist(constants.inputName)
+    orderColumn = request.args.get(constants.orderPickerName)
     condition = request.args.getlist(constants.conditionsPickerName)
     t = getattr(metadata, tableName.lower())
     meta = t.get_meta()
@@ -58,11 +60,12 @@ def view_table():
             query.replaceField(meta[i].refTable, i, meta[i].refKey, meta[i].refName)
     for i in range(len(searchString)):
         query.search(searchColumn[i], searchString[i], condition[i])
+    query.order(orderColumn)
     print(query.query)
     cur.execute(query.query)
     tableData = cur.fetchall()
     print(tableData)
 
-    return render_template("tableView.html", tableName=tableName, selectedColumns = searchColumn, selectedConditions = condition, selectedStrings = searchString, columnNames=tableColumns, tableData=tableData,
+    return render_template("tableView.html", tableName=tableName, selectedColumns = searchColumn, selectedConditions = condition, selectedOrder = orderColumn, selectedStrings = searchString, columnNames=tableColumns, tableData=tableData,
                            tablePickerElements=dbconnector.scheduleDB.tablesList, columnPickerElements=query.currentColumns,
                            formURL=url_for('view_table'), meta = meta)
