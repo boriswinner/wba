@@ -19,9 +19,6 @@ class ConstructQuery():
 
     def search(self, colName, searchWord, condition):
         if (searchWord == None): return
-        if (self.query.find("WHERE") != -1):
-            self.query += ' AND '
-        else:
-            self.query += ' WHERE '
         if len(searchWord) != 0:
+            self.query += (' AND ', ' WHERE ')[self.query.find("WHERE") == -1]
             self.query += SEARCH % (self.tableName+'.'+colName, condition, searchWord)

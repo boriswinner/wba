@@ -21,7 +21,7 @@ class DbConnection:
     def set_tables_list(self):
         if (not self.gotTablesList):
             self.tablesList = self.cur.execute(GETTABLES).fetchall()
-            self.tablesList = [i[0] for i in self.tablesList]
+            self.tablesList = [i[0].strip() for i in self.tablesList]
             self.gotTablesList = 1
 
 
