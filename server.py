@@ -45,18 +45,21 @@ def view_table():
     dbconnector.scheduleDB.set_tables_list()
     cur = dbconnector.scheduleDB.cur
     tableName = request.args.get(constants.tablePickerName)
-    searchColumn = request.args.get(constants.columnPickerName)
-    searchString = request.args.get(constants.inputName)
-    condition = request.args.get(constants.conditionsPickerName)
+    searchColumn = request.args.getlist(constants.columnPickerName)
+    searchString = request.args.getlist(constants.inputName)
+    condition = request.args.getlist(constants.conditionsPickerName)
     t = getattr(metadata, tableName.lower())
     meta = t.get_meta()
     tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     tableColumns = [str(i[0]).strip() for i in tableColumns]
     query = queryconstructor.ConstructQuery(t)
-    query.search(searchColumn,searchString,condition)
+    for i in range(len(searchString)):
+        query.search(searchColumn[i], searchString[i], condition[i])
     for i in tableColumns:
         if meta[i].type == 'ref':
             query.replaceField(meta[i].refTable, i, meta[i].refKey, meta[i].refName)
+    print(searchString)
+    print(query.query)
     cur.execute(query.query)
     tableData = cur.fetchall()
 
