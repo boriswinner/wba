@@ -13,8 +13,8 @@ app = Flask(__name__)
 def mainpage():
     dbconnector.scheduleDB.connect_to_database()
     dbconnector.scheduleDB.set_tables_list()
-    return render_template("tableView.html", pickerName=['tablesPicker'], pickerURL=url_for('view_table'),
-                           pickerElements=[dbconnector.scheduleDB.tablesList])
+    return render_template("tableView.html", pickersNames=['tablesPicker'], pickerURL=url_for('view_table'),
+                           pickerElements=[dbconnector.scheduleDB.tablesList], inputNames=[None], buttonsTexts=["View Table"])
 
 
 @app.route("/view_table", methods=['GET', 'POST'])
