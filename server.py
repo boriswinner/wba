@@ -6,18 +6,20 @@ from flask import render_template
 from flask import url_for
 from flask import request
 
-
 app = Flask(__name__)
+
 
 class Constants:
     def isField(self, i):
         return (not callable(getattr(self, i)) and not i.startswith("__"))
+
     def get_constants(self):
         result = {}
         for i in dir(self):
             if self.isField(i):
                 result[i] = getattr(self, i)
         return result
+
     tablePickerName = 'tablesPicker'
     columnPickerName = 'columnsPicker'
     orderPickerName = 'orderPicker'
@@ -26,20 +28,23 @@ class Constants:
     inputName = 'searchString'
     formButtonText = 'View Table'
     conditions = ['LIKE', '>', '<', '>=', '<=', 'IN']
-    logicalConnections = ['AND','OR']
+    logicalConnections = ['AND', 'OR']
+
 
 constants = Constants()
+
 
 @app.context_processor
 def inject_globals():
     return constants.get_constants()
+
 
 @app.route("/", methods=['GET'])
 def mainpage():
     dbconnector.scheduleDB.connect_to_database()
     dbconnector.scheduleDB.set_tables_list()
     return render_template("tableView.html", formURL=url_for('view_table'),
-                           tablePickerElements= dbconnector.scheduleDB.tablesList)
+                           tablePickerElements=dbconnector.scheduleDB.tablesList)
 
 
 @app.route("/view_table", methods=['GET', 'POST'])
@@ -69,6 +74,10 @@ def view_table():
     cur.execute(query.query)
     tableData = cur.fetchall()
 
-    return render_template("tableView.html", tableName=tableName, selectedColumns = searchColumn, selectedConditions = condition, selectedLogicalConnections = logicalConnections, selectedOrder = orderColumn, selectedStrings = searchString, columnNames=tableColumns, tableData=tableData,
-                           tablePickerElements=dbconnector.scheduleDB.tablesList, columnPickerElements=query.currentColumns,
-                           formURL=url_for('view_table'), meta = meta)
+    return render_template("tableView.html", tableName=tableName, selectedColumns=searchColumn,
+                           selectedConditions=condition, selectedLogicalConnections=logicalConnections,
+                           selectedOrder=orderColumn, selectedStrings=searchString, columnNames=tableColumns,
+                           tableData=tableData,
+                           tablePickerElements=dbconnector.scheduleDB.tablesList,
+                           columnPickerElements=query.currentColumns,
+                           formURL=url_for('view_table'), meta=meta)
