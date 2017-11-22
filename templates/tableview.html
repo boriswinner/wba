@@ -2,15 +2,15 @@
 
 {% block functions %}
     <script>
-$(document).ready(function() {
-    $('#dataView').DataTable({
-        "ordering": false,
-        "info": false,
-        "searching": false
-        }
+        $(document).ready(function() {
+            $('#dataView').DataTable({
+                    "ordering": false,
+                    "info": false,
+                    "searching": false
+                }
 
-    );
-} );
+            );
+        } );
     </script>
     <script>
         function highlight(obj){
@@ -21,7 +21,6 @@ $(document).ready(function() {
     </script>
     <script id="filterSource" type="text/html">
         {% if columnPickerElements is defined %}
-            <br>
             {%  with pickerName = columnPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)' %}
                 {% include 'picker.html' %}
             {% endwith %}
@@ -31,10 +30,22 @@ $(document).ready(function() {
             {% if inputName %}<input name = {{ inputName }} onchange="highlight(this)"> {% endif %}
         {% endif %}
     </script>
+    <script id="logicalConnectionSource" type="text/html">
+        <br>
+        {%  with pickerName = logicalConnectionName, pickerElements = logicalConnections, onChangeFunc='highlight(this)' %}
+            {% include 'picker.html' %}
+        {% endwith %}
+    </script>
     <script>
         function addFilter(){
             var filter = document.getElementById('filterSource').innerHTML;
-            console.log(filter);
+            var t = $("conditionsTag").text();
+            if (t.length > 250){
+                var log = document.getElementById('logicalConnectionSource').innerHTML;
+                $("#conditionsTag").append(log);
+            } else{
+                $("#conditionsTag").append('<br>');
+            }
             $("#conditionsTag").append(filter);
         }
         function deleteFilters(){
@@ -69,6 +80,11 @@ $(document).ready(function() {
                 Conditions:
                 {% for i in range(selectedColumns|length) %}
                     <br>
+                    {% if i != 0 %}
+                        {%  with pickerName = logicalConnectionName, pickerElements = logicalConnections, selectedName = selectedLogicalConnections[i], onChangeFunc='highlight(this)' %}
+                            {% include 'picker.html' %}
+                        {% endwith %}
+                    {% endif %}
                     {%  with pickerName = columnPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)' %}
                         {% include 'picker.html' %}
                     {% endwith %}

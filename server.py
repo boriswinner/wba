@@ -22,9 +22,11 @@ class Constants:
     columnPickerName = 'columnsPicker'
     orderPickerName = 'orderPicker'
     conditionsPickerName = 'condition'
+    logicalConnectionName = 'logicalConnection'
     inputName = 'searchString'
     formButtonText = 'View Table'
     conditions = ['LIKE', '>', '<', '>=', '<=', 'IN']
+    logicalConnections = ['AND','OR']
 
 constants = Constants()
 
@@ -50,23 +52,23 @@ def view_table():
     searchString = request.args.getlist(constants.inputName)
     orderColumn = request.args.get(constants.orderPickerName)
     condition = request.args.getlist(constants.conditionsPickerName)
+    logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
+    print(logicalConnections)
     t = getattr(metadata, tableName.lower())
     meta = t.get_meta()
     tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     tableColumns = [str(i[0]).strip() for i in tableColumns]
     query = queryconstructor.ConstructQuery(t)
-    print(tableColumns)
-    print(query.query)
     for i in tableColumns:
         if meta[i].type == 'ref':
             query.replaceField(meta[i].refTable, i, meta[i].refKey, meta[i].refName)
     for i in range(len(searchString)):
-        query.search(searchColumn[i], searchString[i], condition[i])
+        query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
     query.order(orderColumn)
     print(query.query)
     cur.execute(query.query)
     tableData = cur.fetchall()
 
-    return render_template("tableView.html", tableName=tableName, selectedColumns = searchColumn, selectedConditions = condition, selectedOrder = orderColumn, selectedStrings = searchString, columnNames=tableColumns, tableData=tableData,
+    return render_template("tableView.html", tableName=tableName, selectedColumns = searchColumn, selectedConditions = condition, selectedLogicalConnections = logicalConnections, selectedOrder = orderColumn, selectedStrings = searchString, columnNames=tableColumns, tableData=tableData,
                            tablePickerElements=dbconnector.scheduleDB.tablesList, columnPickerElements=query.currentColumns,
                            formURL=url_for('view_table'), meta = meta)
