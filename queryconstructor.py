@@ -24,7 +24,7 @@ class ConstructQuery():
         if (searchWord == None): return
         if len(searchWord) != 0:
             self.query += (' AND ', ' WHERE ')[self.query.find("WHERE") == -1]
-            self.query += SEARCH % (colName, condition, searchWord)
+            self.query += SEARCH % (colName, condition, (searchWord, '%'+searchWord+'%')[condition == 'LIKE'])
 
     def order(self, orderColumn):
         if (orderColumn == None): return
