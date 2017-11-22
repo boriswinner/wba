@@ -58,11 +58,11 @@ def view_table():
     for i in tableColumns:
         if meta[i].type == 'ref':
             query.replaceField(meta[i].refTable, i, meta[i].refKey, meta[i].refName)
-    print(searchString)
+    print(searchColumn)
     print(query.query)
     cur.execute(query.query)
     tableData = cur.fetchall()
 
-    return render_template("tableView.html", tableName=tableName, columnNames=tableColumns, tableData=tableData,
+    return render_template("tableView.html", tableName=tableName, selectedColumns = searchColumn, selectedConditions = condition, selectedStrings = searchString, columnNames=tableColumns, tableData=tableData,
                            tablePickerElements=dbconnector.scheduleDB.tablesList, columnPickerElements=tableColumns,
                            formURL=url_for('view_table'), meta = meta)

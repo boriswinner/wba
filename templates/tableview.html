@@ -3,7 +3,7 @@
 {% block functions %}
     <script id="filterSource" type="text/html">
         <br>
-        {%  with pickerName = columnPickerName, pickerElements = columnPickerElements %}
+        {%  with pickerName = columnPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i] %}
             {% include 'picker.html' %}
         {% endwith %}
         {%  with pickerName = 'condition', pickerElements = conditions %}
@@ -12,8 +12,9 @@
         {% if inputName %}<input name = {{ inputName }}> {% endif %}
     </script>
     <script>
-        function addFilter(){
+        function addFilter(ind){
             var filter = document.getElementById('filterSource').innerHTML;
+            console.log(filter);
             $("#pConditions").append(filter);
         }
     </script>
@@ -25,14 +26,24 @@
 
 {% block content %}
     <form class="form-inline" method="GET" action="{{ formURL }}">
-        {%  with pickerName = tablePickerName, pickerElements = tablePickerElements %}
+        {%  with pickerName = tablePickerName, pickerElements = tablePickerElements, selectedName = tableName %}
             View table: {% include 'picker.html' %}
         {% endwith %}
         <br>
         {% if columnPickerElements %}
             Conditions:
             <p id = "pConditions"></p>
-            <button type="button" class="btn btn-default" onclick="addFilter()">Add Condition</button>
+            {% for i in range(selectedColumns|length) %}
+                <br>
+                {%  with pickerName = columnPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i] %}
+                    {% include 'picker.html' %}
+                {% endwith %}
+                {%  with pickerName = 'condition', pickerElements = conditions, selectedName = selectedConditions[i] %}
+                    {% include 'picker.html' %}
+                {% endwith %}
+                {% if inputName %}<input name = {{ inputName }} value="{{ selectedStrings[i] }}"> {% endif %}
+            {% endfor %}
+            <button type="button" class="btn btn-default" onclick="addFilter(0)">Add Condition</button>
         {% endif %}
         <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
     </form>

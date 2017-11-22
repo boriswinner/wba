@@ -67,12 +67,12 @@ class Subjects(TableMeta):
     NAME = Field('string', 2, 'Название предмета')
 
 
-class SubjectGroup(TableMeta):
+class Subject_Group(TableMeta):
     SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
     GROUP_ID = refField('ref', 2, 'Номер группы', 'GROUPS', 'ID', 'NAME')
 
 
-class SubjectTeacher(TableMeta):
+class Subject_Teacher(TableMeta):
     SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
     TEACHER_ID = refField('ref', 2, 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
 
@@ -94,7 +94,7 @@ groups = Groups()
 lesson_types = LessonTypes()
 sched_items = Sched_Items()
 subjects = Subjects()
-subject_group = SubjectGroup()
-subject_teacher = SubjectTeacher()
+subject_group = Subject_Group()
+subject_teacher = Subject_Teacher()
 teachers = Teachers()
 weekdays = Weekdays()
