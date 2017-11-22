@@ -13,8 +13,8 @@ app = Flask(__name__)
 def mainpage():
     dbconnector.scheduleDB.connect_to_database()
     dbconnector.scheduleDB.set_tables_list()
-    return render_template("tableView.html", pickersNames=['tablesPicker'], pickerURL=url_for('view_table'),
-                           pickerElements=[dbconnector.scheduleDB.tablesList], inputNames=[None], buttonsTexts=["View Table"])
+    return render_template("tableView.html", tablePickerName='tablesPicker', formURL=url_for('view_table'),
+                           tablePickerElements= dbconnector.scheduleDB.tablesList, formButtonText="View Table")
 
 
 @app.route("/view_table", methods=['GET', 'POST'])
@@ -23,7 +23,7 @@ def view_table():
     dbconnector.scheduleDB.set_tables_list()
     cur = dbconnector.scheduleDB.cur
     tableName = request.args.get("tablesPicker")
-    searchColumn = request.args.get("ColumnsPicker")
+    searchColumn = request.args.get("columnsPicker")
     searchString = request.args.get("searchString")
     t = getattr(metadata, tableName.lower())
     meta = t.get_meta()
@@ -38,5 +38,6 @@ def view_table():
     tableData = cur.fetchall()
 
     return render_template("tableView.html", tableName=tableName, columnNames=tableColumns, tableData=tableData,
-                           pickersNames=['tablesPicker', 'ColumnsPicker'], pickerURL=url_for('view_table'),
-                           pickerElements=[dbconnector.scheduleDB.tablesList,tableColumns], buttonsTexts = ['View Table', 'Search In Column'], inputNames = [None,'searchString'], meta=meta)
+                           tablePickerName='tablesPicker', tablePickerElements=dbconnector.scheduleDB.tablesList,
+                           columnPickerName='columnsPicker', columnPickerElements=tableColumns,
+                           formURL=url_for('view_table'), formButtonText="View Table", meta = meta, inputName = 'searchString')

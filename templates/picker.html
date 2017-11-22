@@ -1,18 +1,5 @@
-<div class="container" align="center">
-    <h3>Select table to view:</h3>
-    <form class="form-inline" method="GET" action="{{ pickerURL }}">
-        {% for k in range(pickersNames|length) %}
-            {% if inputNames[k] is not none %}
-                <input name = {{ inputNames[k] }}>
-            {% endif %}
-            <div class="input-group">
-                <select name="{{ pickersNames[k] }}" class="selectpicker form-control">
-                    {% for i in pickerElements[k] %}
-                        <option value={{ i }}>{{ i }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="btn btn-default">{{ buttonsTexts[k] }}</button>
-        {% endfor %}
-    </form>
-</div>
+<select name="{{ pickerName }}" class="selectpicker form-control">
+    {% for i in pickerElements %}
+        <option value={{ i }}>{{ i }}</option>
+    {% endfor %}
+</select>

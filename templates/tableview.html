@@ -4,12 +4,26 @@
 {% endblock %}
 
 {% block content %}
-    {% include 'picker.html' %}
+    <form class="form-inline" method="GET" action="{{ formURL }}">
+        {%  with pickerName = tablePickerName, pickerElements = tablePickerElements %}
+            {% include 'picker.html' %}
+        {% endwith %}
+        {% if columnPickerName %}
+            {% if inputName %}<input name = {{ inputName }}> {% endif %}
+            {%  with pickerName = columnPickerName, pickerElements = columnPickerElements %}
+                {% include 'picker.html' %}
+            {% endwith %}
+        {% endif %}
+        <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
+    </form>
     {{ table }}
     {% if tableName %}
         <div class="container">
             <h2>Viewing table {{ tableName }}:</h2>
-            {% include 'tableGen.html' %}
+            <div class="container" align="center">
+                <h3>Select table to view:</h3>
+                {% include 'tableGen.html' %}
+            </div>
         </div>
     {% endif %}
 {% endblock %}
