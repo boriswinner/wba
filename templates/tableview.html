@@ -1,4 +1,25 @@
 {% extends "layout.html" %}
+
+{% block functions %}
+    <script id="filterSource" type="text/html">
+        <br>
+        {%  with pickerName = columnPickerName, pickerElements = columnPickerElements %}
+            {% include 'picker.html' %}
+        {% endwith %}
+        {%  with pickerName = 'condition', pickerElements = conditions %}
+            {% include 'picker.html' %}
+        {% endwith %}
+        {% if inputName %}<input name = {{ inputName }}> {% endif %}
+    </script>
+    <script>
+        function addFilter(){
+            var filter = document.getElementById('filterSource').innerHTML;
+            console.log(filter);
+            $("#pConditions").append(filter);
+        }
+    </script>
+{% endblock %}
+
 {% block header %}
     {{ super() }}
 {% endblock %}
@@ -6,13 +27,13 @@
 {% block content %}
     <form class="form-inline" method="GET" action="{{ formURL }}">
         {%  with pickerName = tablePickerName, pickerElements = tablePickerElements %}
-            {% include 'picker.html' %}
+            View table: {% include 'picker.html' %}
         {% endwith %}
-        {% if columnPickerName %}
-            {% if inputName %}<input name = {{ inputName }}> {% endif %}
-            {%  with pickerName = columnPickerName, pickerElements = columnPickerElements %}
-                {% include 'picker.html' %}
-            {% endwith %}
+        <br>
+        {% if columnPickerElements %}
+            Conditions:
+            <p id = "pConditions"></p>
+            <button class="btn btn-default" onclick="addFilter()">Add Field</button>
         {% endif %}
         <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
     </form>

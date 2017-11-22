@@ -3,7 +3,7 @@ import metadata
 # constants
 INITIAL = "SELECT %s from %s"
 LEFTJOIN = " LEFT JOIN %s on %s.%s = %s.%s"
-SEARCH = " WHERE %s LIKE '%s'"
+SEARCH = " WHERE %s %s '%s'"
 
 class ConstructQuery():
     query = ''
@@ -17,7 +17,7 @@ class ConstructQuery():
         self.query += (LEFTJOIN % (secondTableName, self.tableName, key1, secondTableName, key2))
         self.query = self.query.replace(self.tableName + '.' + key1, secondTableName + '.' + replaceKey, 1)
 
-    def search(self, colName, searchWord):
+    def search(self, colName, searchWord, condition):
         if (searchWord == None): return
         if len(searchWord) != 0:
-            self.query += SEARCH % (self.tableName+'.'+colName, '%'+searchWord+'%')
+            self.query += SEARCH % (self.tableName+'.'+colName, condition, searchWord)
