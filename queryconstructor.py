@@ -28,4 +28,5 @@ class ConstructQuery():
             self.query += SEARCH % (colName, condition, searchWord)
 
     def order(self, orderColumn):
+        if (orderColumn == None): return
         self.query += ' ORDER BY %s' % (orderColumn)
