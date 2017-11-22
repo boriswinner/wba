@@ -1,3 +1,15 @@
+from collections import OrderedDict
+class OrderedClass(type):
+    @classmethod
+    def __prepare__(mcs, name, bases):
+         return OrderedDict()
+
+    def __new__(cls, name, bases, classdict):
+        result = type.__new__(cls, name, bases, dict(classdict))
+        exclude = set(dir(type))
+        result.__fields__ = list(f for f in classdict.keys() if f not in exclude)
+        return result
+
 class Field:
     def __init__(self, type='int', width=1, name='Field'):
         self.type = type
@@ -11,22 +23,20 @@ class refField(Field):
         self.refKey = refKey
         self.refName = refName
 
-class TableMeta:
+class TableMeta(metaclass=OrderedClass):
     def isField(self, i):
         return (not callable(getattr(self, i)) and not i.startswith("__") and i.isupper())
 
     def get_meta(self):
         result = {}
-        for i in dir(self):
-            if self.isField(i):
+        for i in self.__fields__:
                 result[i] = getattr(self, i)
         return result
 
     def get_fields(self):
         result = []
-        for i in dir(self):
-            if self.isField(i):
-                result.append(i)
+        for i in self.__fields__:
+            result.append(i)
         return result
 
 

@@ -13,7 +13,6 @@ class ConstructQuery():
         self.tableName = type(t).__name__
         columnsString = ','.join(self.tableName+'.'+ x for x in t.get_fields())
         self.currentColumns = [self.tableName+'.' + x for x in t.get_fields()]
-        print(self.currentColumns)
         self.query = INITIAL % (columnsString, self.tableName)
 
     def replaceField(self, secondTableName, key1, key2, replaceKey):
