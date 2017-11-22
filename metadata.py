@@ -46,7 +46,7 @@ class Groups(TableMeta):
     NAME = Field('string', 2, 'Номер группы')
 
 
-class LessonTypes(TableMeta):
+class Lesson_Types(TableMeta):
     ID = Field('int', 1, 'id')
     NAME = Field('string', 2, 'Тип занятия')
 
@@ -91,7 +91,7 @@ class Weekdays(TableMeta):
 audiences = Audiences()
 lessons = Lessons()
 groups = Groups()
-lesson_types = LessonTypes()
+lesson_types = Lesson_Types()
 sched_items = Sched_Items()
 subjects = Subjects()
 subject_group = Subject_Group()
