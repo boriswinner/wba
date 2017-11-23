@@ -3,7 +3,7 @@ import metadata
 # constants
 INITIAL = "SELECT %s from %s"
 LEFTJOIN = " LEFT JOIN %s on %s.%s = %s.%s"
-SEARCH = " %s ( %s %s '%s' )"
+SEARCH = " %s ( %s %s %s ) "
 
 
 class ConstructQuery():
@@ -15,6 +15,7 @@ class ConstructQuery():
         columnsString = ','.join(self.tableName + '.' + x for x in t.get_fields())
         self.currentColumns = [self.tableName + '.' + x for x in t.get_fields()]
         self.query = INITIAL % (columnsString, self.tableName)
+        self.args = []
 
     def replaceField(self, secondTableName, key1, key2, replaceKey):
         self.query += (LEFTJOIN % (secondTableName, self.tableName, key1, secondTableName, key2))
@@ -22,11 +23,13 @@ class ConstructQuery():
                                self.currentColumns]
         self.query = self.query.replace(self.tableName + '.' + key1, secondTableName + '.' + replaceKey, 1)
 
-    def search(self, colName, searchWord, condition, logConnection):
+    def search(self, colName, searchWord, condition, logicalConnection):
         if (searchWord == None): return
         if len(searchWord) != 0:
             self.query += SEARCH % (
-            logConnection, colName, condition, (searchWord, '%' + searchWord + '%')[condition == 'LIKE'])
+                logicalConnection, colName, condition, '?')
+            self.args.append(searchWord)
+            #self.args.append((searchWord,'%'+searchWord+'%')[condition == 'LIKE'])
 
     def order(self, orderColumn):
         if (orderColumn == None): return

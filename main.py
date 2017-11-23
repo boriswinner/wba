@@ -44,7 +44,7 @@ def mainpage():
     dbconnector.scheduleDB.connect_to_database()
     dbconnector.scheduleDB.set_tables_list()
     return render_template("tableView.html", formURL=url_for('view_table'),
-                           tablePickerElements=dbconnector.scheduleDB.tablesList)
+                          tablePickerElements=dbconnector.scheduleDB.tablesList)
 
 
 @app.route("/view_table", methods=['GET', 'POST'])
@@ -69,7 +69,9 @@ def view_table():
     for i in range(len(searchString)):
         query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
     query.order(orderColumn)
-    cur.execute(query.query)
+    print(query.query)
+    print(query.args)
+    cur.execute(query.query, query.args)
     tableData = cur.fetchall()
 
     return render_template("tableView.html", tableName=tableName, selectedColumns=searchColumn,
@@ -79,3 +81,6 @@ def view_table():
                            tablePickerElements=dbconnector.scheduleDB.tablesList,
                            columnPickerElements=query.currentColumns,
                            formURL=url_for('view_table'), meta=meta)
+
+if __name__ == "__main__":
+    app.run(debug=True)
