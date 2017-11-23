@@ -37,10 +37,10 @@
     </script>
     <script>
         function addFilter() {
-            var filter = document.getElementById('filterSource').innerHTML;
+            var filter = $("#filterSource").html();
             var t = $("conditionsTag").text();
             if (t.length > 250) {
-                var log = document.getElementById('logicalConnectionSource').innerHTML;
+                var log = $("#logicalConnectionSource").html();
                 $("#conditionsTag").append(log);
             } else {
                 $("#conditionsTag").append('<br>');
