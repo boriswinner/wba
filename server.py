@@ -58,7 +58,6 @@ def view_table():
     orderColumn = request.args.get(constants.orderPickerName)
     condition = request.args.getlist(constants.conditionsPickerName)
     logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
-    print(logicalConnections)
     t = getattr(metadata, tableName.lower())
     meta = t.get_meta()
     tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
@@ -70,7 +69,6 @@ def view_table():
     for i in range(len(searchString)):
         query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
     query.order(orderColumn)
-    print(query.query)
     cur.execute(query.query)
     tableData = cur.fetchall()
 
