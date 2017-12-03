@@ -3,7 +3,6 @@ import queryconstructor
 import dbconnector
 from flask import Flask
 from flask import render_template
-from flask import url_for
 from flask import request
 
 app = Flask(__name__)
@@ -31,7 +30,7 @@ class Constants:
     formButtonText = 'View Table'
     conditions = ['LIKE', '>', '<', '>=', '<=', 'IN']
     logicalConnections = ['AND', 'OR']
-    paginationPickerElements = ['5','10','20','50','100']
+    paginationPickerElements = ['5', '10', '20', '50', '100']
 
 
 constants = Constants()
@@ -72,18 +71,17 @@ def view_table():
     for i in range(len(searchString)):
         query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
     query.order(orderColumnName)
-    print(query.query)
-    print(query.args)
     cur.execute(query.query, query.args)
     tableData = cur.fetchall()
 
-    return render_template("tableView.html", tableName=tableName, selectedColumns=searchColumn,
-                           selectedConditions=condition, selectedLogicalConnections=logicalConnections,
-                           selectedOrder=orderColumnName, selectedStrings=searchString, columnNames=tableColumns, selectedPagination = selectedPagination, selectedPage = selectedPage,
-                           tableData=tableData,
-                           tablePickerElements=dbconnector.scheduleDB.tablesList,
+    return render_template("tableView.html", tableName=tableName, tablePickerElements=dbconnector.scheduleDB.tablesList,
                            columnPickerElements=query.currentColumns,
-                            meta=meta)
+                           selectedColumns=searchColumn,
+                           selectedConditions=condition, selectedLogicalConnections=logicalConnections,
+                           selectedOrder=orderColumnName, selectedStrings=searchString,
+                           selectedPagination=selectedPagination, selectedPage=selectedPage,
+                           columnNames=tableColumns, tableData=tableData, meta=meta)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
