@@ -2,19 +2,7 @@
 
 {% block functions %}
     <script>
-        $(document).ready(function () {
-            $('#dataView').DataTable({
-                    "ordering": false,
-                    "info": false,
-                    "searching": false
-                }
-            );
-        });
-    </script>
-    <script>
         function highlight(obj) {
-            console.log('test');
-            console.log(obj);
             obj.style.background = "red"
         }
     </script>
@@ -69,12 +57,15 @@
             View table: {% include 'picker.html' %}
         {% endwith %}
         <br>
-        {% if columnPickerElements is defined %}
             <p id="pConditions"></p>
             <conditionsTag id="conditionsTag">
                 Order by:
                 {% with pickerName = orderPickerName, pickerElements = columnPickerElements, selectedName = selectedOrder, onChangeFunc='highlight(this)' %}
                     {% include 'picker.html' %}
+                {% endwith %}
+                <br>
+                {% with pickerName = paginationPickerName, pickerElements = paginationPickerElements, selectedName = selectedPagination, onChangeFunc='highlight(this)' %}
+                    Show {% include 'picker.html' %} entries
                 {% endwith %}
                 <br>
                 Conditions:
@@ -98,16 +89,15 @@
             </conditionsTag>
             <button type="button" class="btn btn-default" onclick="addFilter()">Add Condition</button>
             <button type="button" class="btn btn-default" onclick="deleteFilters()">Delete All Conditions</button>
-        {% endif %}
         <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
-    </form>
-    {{ table }}
-    {% if tableName %}
-        <div class="container">
-            <h2>Viewing table {{ tableName }}:</h2>
-            <div class="container" align="center">
-                {% include 'tableGen.html' %}
+        {{ table }}
+        {% if tableName %}
+            <div class="container">
+                <h2>Viewing table {{ tableName }}:</h2>
+                <div class="container" align="center">
+                    {% include 'tableGen.html' %}
+                </div>
             </div>
-        </div>
-    {% endif %}
+        {% endif %}
+    </form>
 {% endblock %}

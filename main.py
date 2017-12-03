@@ -23,12 +23,15 @@ class Constants:
     tablePickerName = 'tablesPicker'
     columnPickerName = 'columnsPicker'
     orderPickerName = 'orderPicker'
+    paginationPickerName = 'paginationPicker'
+    pagePickerName = 'pagePicker'
     conditionsPickerName = 'condition'
     logicalConnectionName = 'logicalConnection'
     inputName = 'searchString'
     formButtonText = 'View Table'
     conditions = ['LIKE', '>', '<', '>=', '<=', 'IN']
     logicalConnections = ['AND', 'OR']
+    paginationPickerElements = ['5','10','20','50','100']
 
 
 constants = Constants()
@@ -56,6 +59,8 @@ def view_table():
     searchColumn = request.args.getlist(constants.columnPickerName)
     searchString = request.args.getlist(constants.inputName)
     orderColumn = request.args.get(constants.orderPickerName)
+    selectedPagination = request.args.get(constants.paginationPickerName)
+    selectedPage = request.args.get(constants.pagePickerName)
     condition = request.args.getlist(constants.conditionsPickerName)
     logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
     t = getattr(metadata, tableName.lower())
@@ -76,7 +81,7 @@ def view_table():
 
     return render_template("tableView.html", tableName=tableName, selectedColumns=searchColumn,
                            selectedConditions=condition, selectedLogicalConnections=logicalConnections,
-                           selectedOrder=orderColumn, selectedStrings=searchString, columnNames=tableColumns,
+                           selectedOrder=orderColumn, selectedStrings=searchString, columnNames=tableColumns, selectedPagination = selectedPagination, selectedPage = selectedPage,
                            tableData=tableData,
                            tablePickerElements=dbconnector.scheduleDB.tablesList,
                            columnPickerElements=query.currentColumns,

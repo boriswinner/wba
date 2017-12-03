@@ -16,3 +16,6 @@
     {% endfor %}
     </tbody>
 </table>
+        {% with pickerName = pagePickerName, pickerElements = range( ((tableData|length) / (selectedPagination | int)) | round(0,'ceil') | int ), selectedName = selectedPage, onChangeFunc="this.form.submit()" %}
+            {% include 'picker.html' %}
+        {% endwith %}
