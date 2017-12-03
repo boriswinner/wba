@@ -42,27 +42,25 @@ def inject_globals():
     return constants.get_constants()
 
 
-@app.route("/", methods=['GET'])
-def mainpage():
-    dbconnector.scheduleDB.connect_to_database()
-    dbconnector.scheduleDB.set_tables_list()
-    return render_template("tableView.html", formURL=url_for('view_table'),
-                          tablePickerElements=dbconnector.scheduleDB.tablesList)
-
-
-@app.route("/view_table", methods=['GET', 'POST'])
+@app.route("/", methods=['GET', 'POST'])
 def view_table():
     dbconnector.scheduleDB.connect_to_database()
     dbconnector.scheduleDB.set_tables_list()
     cur = dbconnector.scheduleDB.cur
     tableName = request.args.get(constants.tablePickerName)
+    if (tableName is None):
+        tableName = dbconnector.scheduleDB.tablesList[0]
+    orderColumnName = request.args.get(constants.orderPickerName)
+    selectedPagination = request.args.get(constants.paginationPickerName)
+    if selectedPagination is None:
+        selectedPagination = constants.paginationPickerElements[0]
     searchColumn = request.args.getlist(constants.columnPickerName)
     searchString = request.args.getlist(constants.inputName)
-    orderColumn = request.args.get(constants.orderPickerName)
-    selectedPagination = request.args.get(constants.paginationPickerName)
-    selectedPage = request.args.get(constants.pagePickerName)
     condition = request.args.getlist(constants.conditionsPickerName)
     logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
+    selectedPage = request.args.get(constants.pagePickerName)
+    if selectedPage is None:
+        selectedPage = 0
     t = getattr(metadata, tableName.lower())
     meta = t.get_meta()
     tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
@@ -73,7 +71,7 @@ def view_table():
             query.replaceField(meta[i].refTable, i, meta[i].refKey, meta[i].refName)
     for i in range(len(searchString)):
         query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
-    query.order(orderColumn)
+    query.order(orderColumnName)
     print(query.query)
     print(query.args)
     cur.execute(query.query, query.args)
@@ -81,11 +79,11 @@ def view_table():
 
     return render_template("tableView.html", tableName=tableName, selectedColumns=searchColumn,
                            selectedConditions=condition, selectedLogicalConnections=logicalConnections,
-                           selectedOrder=orderColumn, selectedStrings=searchString, columnNames=tableColumns, selectedPagination = selectedPagination, selectedPage = selectedPage,
+                           selectedOrder=orderColumnName, selectedStrings=searchString, columnNames=tableColumns, selectedPagination = selectedPagination, selectedPage = selectedPage,
                            tableData=tableData,
                            tablePickerElements=dbconnector.scheduleDB.tablesList,
                            columnPickerElements=query.currentColumns,
-                           formURL=url_for('view_table'), meta=meta)
+                            meta=meta)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -7,7 +7,7 @@
     </tr>
     </thead>
     <tbody>
-    {% for i in tableData %}
+    {% for i in tableData[(selectedPage|int)*(selectedPagination|int):((selectedPage|int) + 1)*(selectedPagination|int)] %}
         <tr>
             {% for j in range(columnNames|length) %}
                 <td class="col-md-{{ meta[columnNames[j]].width }}">{{ i[j] }}</td>
@@ -16,6 +16,8 @@
     {% endfor %}
     </tbody>
 </table>
+<conditionsTag id="conditionsTag">
         {% with pickerName = pagePickerName, pickerElements = range( ((tableData|length) / (selectedPagination | int)) | round(0,'ceil') | int ), selectedName = selectedPage, onChangeFunc="this.form.submit()" %}
             {% include 'picker.html' %}
         {% endwith %}
+</conditionsTag>

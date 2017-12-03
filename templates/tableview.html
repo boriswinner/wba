@@ -52,7 +52,7 @@
 {% endblock %}
 
 {% block content %}
-    <form id="filtersForm" class="form-inline" method="GET" action="{{ formURL }}">
+    <form id="filtersForm" class="form-inline" method="GET">
         {% with pickerName = tablePickerName, pickerElements = tablePickerElements, selectedName = tableName, onChangeFunc = 'deleteFilters()' %}
             View table: {% include 'picker.html' %}
         {% endwith %}
@@ -95,7 +95,9 @@
             <div class="container">
                 <h2>Viewing table {{ tableName }}:</h2>
                 <div class="container" align="center">
+                    {% with tableData = tableData %}
                     {% include 'tableGen.html' %}
+                    {% endwith %}
                 </div>
             </div>
         {% endif %}
