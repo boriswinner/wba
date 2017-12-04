@@ -1,38 +1,33 @@
 {% extends "layout.html" %}
 
 {% block functions %}
-    <script>
-        function highlight(obj) {
-            obj.style.background = "red"
-        }
+    <script id="conditionSourceCode" type="text/html">
+        <br>
+        {% with pickerName = columnPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)' %}
+            {% include 'picker.html' %}
+        {% endwith %}
+        {% with pickerName = 'condition', pickerElements = conditions, onChangeFunc='highlight(this)' %}
+            {% include 'picker.html' %}
+        {% endwith %}
+        {% if inputName %}<input name={{ inputName }} onchange="highlight(this)"> {% endif %}
     </script>
-    <script id="filterSource" type="text/html">
-        {% if columnPickerElements is defined %}
-            {% with pickerName = columnPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)' %}
-                {% include 'picker.html' %}
-            {% endwith %}
-            {% with pickerName = 'condition', pickerElements = conditions, onChangeFunc='highlight(this)' %}
-                {% include 'picker.html' %}
-            {% endwith %}
-            {% if inputName %}<input name={{ inputName }} onchange="highlight(this)"> {% endif %}
-        {% endif %}
-    </script>
-    <script id="logicalConnectionSource" type="text/html">
+    <script id="logicalConnectionSourceCode" type="text/html">
         <br>
         {% with pickerName = logicalConnectionName, pickerElements = logicalConnections, onChangeFunc='highlight(this)' %}
             {% include 'picker.html' %}
         {% endwith %}
     </script>
     <script>
+        function highlight(obj) {
+            obj.style.background = "yellow"
+        }
+
         function addFilter() {
-            var filter = $("#filterSource").html();
-            var t = $("conditionsTag").text();
-            if (t.length > 250) {
-                var log = $("#logicalConnectionSource").html();
-                $("#conditionsTag").append(log);
-            } else {
-                $("#conditionsTag").append('<br>');
+            var filter = '';
+            if ($("#condition").length != 0) {
+                filter += ($("#logicalConnectionSourceCode").html());
             }
+            filter += $("#conditionSourceCode").html();
             $("#conditionsTag").append(filter);
         }
 
