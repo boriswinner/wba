@@ -75,6 +75,7 @@
                     {% with pickerName = logicalConnectionName, pickerElements = logicalConnections, selectedName = selectedLogicalConnections[i], onChangeFunc='highlight(this)' %}
                         {% include 'picker.html' %}
                     {% endwith %}
+                    <br>
                 {% endif %}
                 {% with pickerName = columnPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)' %}
                     {% include 'picker.html' %}
@@ -91,9 +92,14 @@
         <button type="button" class="btn btn-default" onclick="deleteFilters()">Delete All Conditions</button>
         <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
         {{ table }}
-        {% if tableName %}
+        {% if incorrectQuery is defined %}
+            <br><br>
+            <div class="alert alert-warning">
+                <center><strong>Incorrect Query!</strong> Try Again.</center>
+            </div>
+        {% endif %}
+        {% if tableData is defined %}
             <div class="container">
-                <h4>Viewing table {{ tableName }}:</h4>
                 <div class="container" align="center">
                     {% with tableData = tableData %}
                         {% include 'tableGen.html' %}

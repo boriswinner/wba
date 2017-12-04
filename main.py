@@ -71,7 +71,16 @@ def view_table():
     for i in range(len(searchString)):
         query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
     query.order(orderColumnName)
-    cur.execute(query.query, query.args)
+    try:
+        cur.execute(query.query, query.args)
+    except:
+        return render_template("tableView.html", tableName=tableName,
+                               tablePickerElements=dbconnector.scheduleDB.tablesList,
+                               columnPickerElements=query.currentColumns,
+                               selectedColumns=searchColumn,
+                               selectedConditions=condition, selectedLogicalConnections=logicalConnections,
+                               selectedOrder=orderColumnName, selectedStrings=searchString,
+                               selectedPagination=selectedPagination, selectedPage=selectedPage, incorrectQuery = 1)
     tableData = cur.fetchall()
 
     return render_template("tableView.html", tableName=tableName, tablePickerElements=dbconnector.scheduleDB.tablesList,
