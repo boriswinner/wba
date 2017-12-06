@@ -17,9 +17,7 @@
                 {% endif %}
             {% endfor %}
             <td class="col-md-2"><a href ="{{ url_for('view_table',deleteID=id[0], tablesPicker=tableName) }}">Delete</a></td>
-            <td><a href="#editRowModal" data-toggle="modal" class="identifyingClass" data-editID="{{id[0]}}">Edit</a></td>
-            <td><a href="#" data-target="#editRowModal" data-toggle="modal" class="identifyingClass" data-id="{{ id[0] }}">Open Modal</a></td>
-            <td class="col-md-2"><a href ="{{ url_for('rowEdit',tableData=tableData) }}">Edit</a></td>
+            <td class="col-md-2"><a href ="{{ url_for('rowEdit',tableData=tableData, columnNames = columnNames, editID=id[0], tableName = tableName) }}">Edit</a></td>
         </tr>
     {% endfor %}
     </tbody>

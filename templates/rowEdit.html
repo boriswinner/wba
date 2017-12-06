@@ -1,2 +1,16 @@
 {% extends "layout.html" %}
 
+{% block content %}
+    <form id="editForm" class="form-inline" method="GET" action="{{ url_for('editInTable') }}">
+    {% for i in range(columnNames|length) %}
+        {{ columnNames[i] }}
+        <input name="{{ editInputName }}" id= "{{ editInputName }}" value = {{ columns[i] }} />
+        <br>
+    {% endfor %}
+    <input name="columns" id= "columns" type = "hidden" value = "{{ columns }}" />
+    <input name="rowID" id= "rowID" type = "hidden" value = "{{ rowID }}" />
+    <input name="columnNames" id= "columnNames" type = "hidden" value = "{{ columnNames }}" />
+    <input name="tableName" id= "tableName" type = "hidden" value = "{{ tableName }}" />
+    <button type="submit" class="btn btn-default">Edit Row</button>
+    </form>
+{% endblock %}

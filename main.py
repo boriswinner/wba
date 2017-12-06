@@ -1,6 +1,7 @@
 import metadata
 import queryconstructor
 import dbconnector
+import re
 from flask import Flask, url_for, render_template,request
 
 app = Flask(__name__)
@@ -123,8 +124,48 @@ def view_table():
 @app.route("/rowEdit", methods=['GET', 'POST'])
 def rowEdit():
     tableData = request.args.getlist('tableData')
-    print(tableData)
-    return (render_template('rowEdit.html'))
+    tableName = request.args.getlist('tableName')
+    for i in range(len(tableData)):
+        tableData[i] = re.sub("[(){}<>]",'',tableData[i])
+        tableData[i] = re.sub("'",'',tableData[i])
+        tableData[i] = re.sub(",", '', tableData[i])
+    editID = request.args.get('editID')
+    columnNames = request.args.getlist('columnNames')
+    tableData = [x.split() for x in tableData]
+    for i in range(len(columnNames)):
+        if (columnNames[i] == 'ID'):
+            idColumn = i;
+    for j in tableData:
+        if (j[idColumn] == str(editID)):
+            columns = j;
+            break;
+    columns.pop(idColumn)
+    columnNames.pop(idColumn)
+    return render_template('rowEdit.html',columnNames = columnNames,columns = columns, rowID = editID, tableName = tableName)
+
+@app.route("/editInTable", methods=['GET', 'POST'])
+def editInTable():
+    tableName = request.args.get('tableName').replace('[','').replace(']','').replace("'",'')
+    columns = request.args.getlist('columns')[0]
+    columns = columns.replace('[','').replace(']','').replace("'",'').replace("\"",'').replace(",",'')
+    columns = columns.split()
+    rowID = request.args.get('rowID')
+    columnNames = request.args.getlist('columnNames')[0].replace('[','').replace(']','').replace("'",'').replace("\"",'').replace(",",'').split()
+    newColumns = request.args.getlist(constants.editInputName)
+
+    dbconnector.scheduleDB.connect_to_database()
+    dbconnector.scheduleDB.set_tables_list()
+    cur = dbconnector.scheduleDB.cur
+    tableMetadataObject = getattr(metadata, tableName.lower())
+    tableMetadataDict = tableMetadataObject.get_meta()
+
+    query = queryconstructor.ConstructQuery(tableMetadataObject)
+    query.setUpdate(newColumns, columnNames, rowID)
+    print(query.query)
+    cur.execute(query.query)
+    return render_template('sucessfulUpdate.html')
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
