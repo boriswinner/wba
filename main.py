@@ -26,6 +26,7 @@ class Constants:
     logicalConnectionName = 'logicalConnection'
     inputName = 'searchString'
     addIntoTableInputsName = 'addIntoTableInput'
+    editInputName = 'editInput'
     deleteIDName = 'deleteID'
     formButtonText = 'View Table'
     conditions = ['LIKE', '>', '<', '>=', '<=', 'IN']
@@ -119,6 +120,11 @@ def view_table():
                            columnNames=tableColumns, tableData=tableData, meta=tableMetadataDict,
                            tableColumns=[x for x in tableColumns if tableMetadataDict[x].type != 'key'])
 
+@app.route("/rowEdit", methods=['GET', 'POST'])
+def rowEdit():
+    tableData = request.args.getlist('tableData')
+    print(tableData)
+    return (render_template('rowEdit.html'))
 
 if __name__ == "__main__":
     app.run(debug=True)
