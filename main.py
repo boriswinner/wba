@@ -45,61 +45,70 @@ def view_table():
     dbconnector.scheduleDB.connect_to_database()
     dbconnector.scheduleDB.set_tables_list()
     cur = dbconnector.scheduleDB.cur
+
     tableName = request.args.get(constants.tablePickerName)
     if (tableName is None):
         tableName = dbconnector.scheduleDB.tablesList[0]
-    orderColumnName = request.args.get(constants.orderPickerName)
-    selectedPagination = request.args.get(constants.paginationPickerName)
-    if selectedPagination is None:
-        selectedPagination = constants.paginationPickerElements[0]
+
+    #form arguments for query controls
+
+    orderColumn = request.args.get(constants.orderPickerName)
+    rowsOnPageNumber = request.args.get(constants.paginationPickerName)
+    if rowsOnPageNumber is None:
+        rowsOnPageNumber = constants.paginationPickerElements[0]
     searchColumn = request.args.getlist(constants.columnPickerName)
     searchString = request.args.getlist(constants.inputName)
-    condition = request.args.getlist(constants.conditionsPickerName)
+    conditions = request.args.getlist(constants.conditionsPickerName)
     logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
+    tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
+    tableColumns = [str(i[0]).strip() for i in tableColumns]
     selectedPage = request.args.get(constants.pagePickerName)
     if selectedPage is None:
         selectedPage = 0
-    t = getattr(metadata, tableName.lower())
-    meta = t.get_meta()
-    tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
-    tableColumns = [str(i[0]).strip() for i in tableColumns]
-    query = queryconstructor.ConstructQuery(t)
-    query.setSelect()
+
+    #form SELECT query
+
+    tableMetadataObject = getattr(metadata, tableName.lower())
+    tableMetadataDict = tableMetadataObject.get_meta()
+    selectQuery = queryconstructor.ConstructQuery(tableMetadataObject)
+    selectQuery.setSelect()
     for i in tableColumns:
-        if meta[i].type == 'ref':
-            query.replaceField(meta[i].refTable, i, meta[i].refKey, meta[i].refName)
+        if tableMetadataDict[i].type == 'ref':
+            selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey, tableMetadataDict[i].refName)
     for i in range(len(searchString)):
-        query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
-    query.order(orderColumnName)
-    addedValues = request.args.getlist(constants.addIntoTableInputsName);
-    print(addedValues)
-    if (addedValues):
-        insertQuery = queryconstructor.ConstructQuery(t);
+        selectQuery.search(searchColumn[i], searchString[i], conditions[i], logicalConnections[i])
+    selectQuery.order(orderColumn)
+
+    #form INSERT query
+
+    addedValues = request.args.getlist(constants.addIntoTableInputsName)
+    if (len(addedValues) > 0 and len(addedValues[0]) > 0):
+        insertQuery = queryconstructor.ConstructQuery(tableMetadataObject)
         insertQuery.setInsert(addedValues)
-        try:
-            cur.execute(insertQuery.query, insertQuery.args)
-        except:
-            return ('error')
+
+    #run queries
+
     try:
-        cur.execute(query.query, query.args)
+        if (len(addedValues) > 0 and len(addedValues[0]) > 0): cur.execute(insertQuery.query, insertQuery.args)
+        cur.execute(selectQuery.query, selectQuery.args)
         tableData = cur.fetchall()
     except:
         return render_template("tableView.html", tableName=tableName,
                                tablePickerElements=dbconnector.scheduleDB.tablesList,
-                               columnPickerElements=query.currentColumns,
+                               columnPickerElements=selectQuery.currentColumns,
                                selectedColumns=searchColumn,
-                               selectedConditions=condition, selectedLogicalConnections=logicalConnections,
-                               selectedOrder=orderColumnName, selectedStrings=searchString,
-                               selectedPagination=selectedPagination, selectedPage=selectedPage, incorrectQuery = 1)
+                               selectedConditions=conditions, selectedLogicalConnections=logicalConnections,
+                               selectedOrder=orderColumn, selectedStrings=searchString,
+                               selectedPagination=rowsOnPageNumber, selectedPage=selectedPage, incorrectQuery = 1)
 
     return render_template("tableView.html", tableName=tableName, tablePickerElements=dbconnector.scheduleDB.tablesList,
-                           columnPickerElements=query.currentColumns,
+                           columnPickerElements=selectQuery.currentColumns,
                            selectedColumns=searchColumn,
-                           selectedConditions=condition, selectedLogicalConnections=logicalConnections,
-                           selectedOrder=orderColumnName, selectedStrings=searchString,
-                           selectedPagination=selectedPagination, selectedPage=selectedPage,
-                           columnNames=tableColumns, tableData=tableData, meta=meta,
-                           tableColumns=[x for x in tableColumns if meta[x].type != 'key'])
+                           selectedConditions=conditions, selectedLogicalConnections=logicalConnections,
+                           selectedOrder=orderColumn, selectedStrings=searchString,
+                           selectedPagination=rowsOnPageNumber, selectedPage=selectedPage,
+                           columnNames=tableColumns, tableData=tableData, meta=tableMetadataDict,
+                           tableColumns=[x for x in tableColumns if tableMetadataDict[x].type != 'key'])
 
 
 if __name__ == "__main__":
