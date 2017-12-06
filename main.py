@@ -79,7 +79,7 @@ def view_table():
         insertQuery.setInsert(addedValues)
         print(insertQuery.query)
         print(query.query)
-        cur.execute(insertQuery.query,['1','p'])
+        #cur.execute(insertQuery.query,['1','p'])
     try:
         cur.execute(query.query, query.args)
         tableData = cur.fetchall()

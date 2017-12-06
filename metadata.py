@@ -50,21 +50,27 @@ class Audiences(TableMeta):
     NAME = Field('string', 2, 'Номер аудитории')
 
 
+class Groups(TableMeta):
+    ID = Field('int', 1, 'id')
+    NAME = Field('string', 2, 'Номер группы')
+
+
 class Lessons(TableMeta):
     ID = Field('int', 4, 'id')
     NAME = Field('string', 8, 'Название занятия')
     ORDER_NUMBER = Field('int', 4, 'id')
 
 
-class Groups(TableMeta):
-    ID = Field('int', 1, 'id')
-    NAME = Field('string', 2, 'Номер группы')
-
-
 class Lesson_Types(TableMeta):
     ID = Field('int', 1, 'id')
     NAME = Field('string', 2, 'Тип занятия')
 
+
+"""class Log(TableMeta):
+    ID = Field('int', 1, 'id')
+    STATUS = Field('int', 1, 'id')
+    TABLE_NAME = Field('string', 2, 'Тип занятия')
+    TABLE_PK = Field('int', 2, 'Тип занятия')"""
 
 class Sched_Items(TableMeta):
     ID = Field('int', 1, 'id')
@@ -83,11 +89,13 @@ class Subjects(TableMeta):
 
 
 class Subject_Group(TableMeta):
+    ID = Field('int', 1, 'id')
     SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
     GROUP_ID = refField('ref', 2, 'Номер группы', 'GROUPS', 'ID', 'NAME')
 
 
 class Subject_Teacher(TableMeta):
+    ID = Field('int', 1, 'id')
     SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
     TEACHER_ID = refField('ref', 2, 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
 
