@@ -1,6 +1,6 @@
 #constants
 
-#INITIAL = '/'
+#INITIAL_SELECT = '/'
 
 class ConstructGetQuery():
     query = ''

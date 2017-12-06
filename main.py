@@ -65,13 +65,21 @@ def view_table():
     tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     tableColumns = [str(i[0]).strip() for i in tableColumns]
     query = queryconstructor.ConstructQuery(t)
+    query.setSelect()
     for i in tableColumns:
         if meta[i].type == 'ref':
             query.replaceField(meta[i].refTable, i, meta[i].refKey, meta[i].refName)
     for i in range(len(searchString)):
         query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
     query.order(orderColumnName)
+    addedValues = request.args.getlist(constants.addIntoTableInputsName);
     addIntoTableQuery = url_for('add',tableName=tableName)
+    if (addIntoTableQuery is not None):
+        insertQuery = queryconstructor.ConstructQuery(t);
+        insertQuery.setInsert(addedValues)
+        print(insertQuery.query)
+        print(query.query)
+        cur.execute(insertQuery.query,['1','p'])
     try:
         cur.execute(query.query, query.args)
         tableData = cur.fetchall()
