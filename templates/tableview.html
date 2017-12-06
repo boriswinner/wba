@@ -54,7 +54,34 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Trigger the modal with a button -->
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addIntoTableModal">Add values</button>
+
     <form id="filtersForm" class="form-inline" method="GET">
+        <!-- Modal -->
+        <div id="addIntoTableModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Add values into table</h4>
+                    </div>
+                    <div class="modal-body">
+                        {% for i in tableColumns %}
+                            {{ i }}
+                            <input name={{ addIntoTableInputsName }}>
+                            <br>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-default">Add values</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
         {% with pickerName = tablePickerName, pickerElements = tablePickerElements, selectedName = tableName, onChangeFunc = 'deleteFilters()' %}
             View table: {% include 'picker.html' %}
         {% endwith %}
@@ -98,8 +125,9 @@
                 <center><strong>Incorrect Query!</strong> Try Again.</center>
             </div>
         {% endif %}
-    <br>
-        <input type="button" class="btn btn-default" onclick="location.href='{{ addIntoTableQuery }}'" value="Add into table" />
+        <br>
+        <input type="button" class="btn btn-default" onclick="location.href='{{ addIntoTableQuery }}'"
+               value="Add into table"/>
         {% if tableData is defined %}
             <div class="container">
                 <div class="container" align="center">

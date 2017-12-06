@@ -26,6 +26,7 @@ class Constants:
     conditionsPickerName = 'condition'
     logicalConnectionName = 'logicalConnection'
     inputName = 'searchString'
+    addIntoTableInputsName = 'addIntoTableInput'
     formButtonText = 'View Table'
     conditions = ['LIKE', '>', '<', '>=', '<=', 'IN']
     logicalConnections = ['AND', 'OR']
@@ -89,7 +90,8 @@ def view_table():
                            selectedConditions=condition, selectedLogicalConnections=logicalConnections,
                            selectedOrder=orderColumnName, selectedStrings=searchString,
                            selectedPagination=selectedPagination, selectedPage=selectedPage,
-                           columnNames=tableColumns, tableData=tableData, meta=meta, addIntoTableQuery = addIntoTableQuery)
+                           columnNames=tableColumns, tableData=tableData, meta=meta, addIntoTableQuery = addIntoTableQuery,
+                           tableColumns=tableColumns)
 
 @app.route("/add", methods=['GET', 'POST'])
 def add():
@@ -99,7 +101,7 @@ def add():
     tableName = request.args.get('tableName')
     tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     tableColumns = [str(i[0]).strip() for i in tableColumns]
-    return (render_template('addIntoTable.html', tableColumns = tableColumns, inputName = 'addInput'))
+    return (render_template('addIntoTable.html', tableColumns = tableColumns, inputName = constants.addIntoTableInputsName))
 
 if __name__ == "__main__":
     app.run(debug=True)
