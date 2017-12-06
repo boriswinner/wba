@@ -37,6 +37,8 @@ class Constants:
 
 constants = Constants()
 
+tableData = []
+
 
 @app.context_processor
 def inject_globals():
@@ -52,6 +54,7 @@ def view_table():
     tableName = request.args.get(constants.tablePickerName)
     if (tableName is None):
         tableName = dbconnector.scheduleDB.tablesList[0]
+    global tableData
 
     #form arguments for query controls
 
@@ -123,21 +126,18 @@ def view_table():
 
 @app.route("/rowEdit", methods=['GET', 'POST'])
 def rowEdit():
-    tableData = request.args.getlist('tableData')
+    global tableData
     tableName = request.args.getlist('tableName')
-    for i in range(len(tableData)):
-        tableData[i] = re.sub("[(){}<>]",'',tableData[i])
-        tableData[i] = re.sub("'",'',tableData[i])
-        tableData[i] = re.sub(",", '', tableData[i])
     editID = request.args.get('editID')
     columnNames = request.args.getlist('columnNames')
-    tableData = [x.split() for x in tableData]
     for i in range(len(columnNames)):
         if (columnNames[i] == 'ID'):
             idColumn = i;
+            print('idCol', idColumn)
     for j in tableData:
-        if (j[idColumn] == str(editID)):
-            columns = j;
+        print('row ', j[idColumn], str(editID))
+        if (str(j[idColumn]) == str(editID)):
+            columns = list(j);
             break;
     columns.pop(idColumn)
     columnNames.pop(idColumn)
