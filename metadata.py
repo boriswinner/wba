@@ -46,34 +46,39 @@ class TableMeta(metaclass=OrderedClass):
 
 
 class Audiences(TableMeta):
-    ID = Field('int', 1, 'id')
+    ID = Field('key', 1, 'id')
     NAME = Field('string', 2, 'Номер аудитории')
 
 
 class Groups(TableMeta):
-    ID = Field('int', 1, 'id')
+    ID = Field('key', 1, 'id')
     NAME = Field('string', 2, 'Номер группы')
 
 
 class Lessons(TableMeta):
-    ID = Field('int', 4, 'id')
+    ID = Field('key', 1, 'id')
     NAME = Field('string', 8, 'Название занятия')
     ORDER_NUMBER = Field('int', 4, 'id')
 
 
 class Lesson_Types(TableMeta):
-    ID = Field('int', 1, 'id')
+    ID = Field('key', 1, 'id')
     NAME = Field('string', 2, 'Тип занятия')
 
 
-"""class Log(TableMeta):
-    ID = Field('int', 1, 'id')
+class Log(TableMeta):
+    ID = Field('key', 1, 'id')
     STATUS = Field('int', 1, 'id')
-    TABLE_NAME = Field('string', 2, 'Тип занятия')
-    TABLE_PK = Field('int', 2, 'Тип занятия')"""
+    TABLE_NAME = Field('string', 2, 'Имя таблицы')
+    TABLE_PK = Field('int', 2, 'PK таблицы')
+    CHANGE_TIME = Field('timestamp',2,'Время изменения')
+
+class Log_Status(TableMeta):
+    ID = Field('key', 1, 'id')
+    NAME = Field('string', 2, 'Имя')
 
 class Sched_Items(TableMeta):
-    ID = Field('int', 1, 'id')
+    ID = Field('key', 1, 'id')
     LESSON_ID = refField('ref', 2, 'Номер пары', 'LESSONS', 'ID', 'NAME')
     SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
     AUDIENCE_ID = refField('ref', 1, 'Номер аудитории', 'AUDIENCES', 'ID', 'NAME')
@@ -84,29 +89,29 @@ class Sched_Items(TableMeta):
 
 
 class Subjects(TableMeta):
-    ID = Field('int', 1, 'id')
+    ID = Field('key', 1, 'id')
     NAME = Field('string', 2, 'Название предмета')
 
 
 class Subject_Group(TableMeta):
-    ID = Field('int', 1, 'id')
+    ID = Field('key', 1, 'id')
     SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
     GROUP_ID = refField('ref', 2, 'Номер группы', 'GROUPS', 'ID', 'NAME')
 
 
 class Subject_Teacher(TableMeta):
-    ID = Field('int', 1, 'id')
+    ID = Field('key', 1, 'id')
     SUBJECT_ID = refField('ref', 2, 'Название предмета', 'SUBJECTS', 'ID', 'NAME')
     TEACHER_ID = refField('ref', 2, 'Преподаватель', 'TEACHERS', 'ID', 'NAME')
 
 
 class Teachers(TableMeta):
-    ID = Field('int', 1, 'id')
+    ID = Field('key', 1, 'id')
     NAME = Field('string', 2, 'Преподаватель')
 
 
 class Weekdays(TableMeta):
-    ID = Field('int', 1, 'id')
+    ID = Field('key', 1, 'id')
     NAME = Field('string', 2, 'День недели')
     ORDER_NUMBER = Field('int', 1, 'Порядковый номер')
 
@@ -121,3 +126,5 @@ subject_group = Subject_Group()
 subject_teacher = Subject_Teacher()
 teachers = Teachers()
 weekdays = Weekdays()
+log = Log()
+log_status = Log_Status()

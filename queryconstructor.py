@@ -2,7 +2,7 @@ import metadata
 
 # constants
 INITIAL_SELECT = "SELECT %s from %s"
-INITIAL_INSERT = "INSERT INTO %s VALUES (%s)"
+INITIAL_INSERT = "INSERT INTO %s(%s) VALUES (%s)"
 LEFTJOIN = " LEFT JOIN %s on %s.%s = %s.%s"
 SEARCH = " %s ( %s %s %s ) "
 
@@ -22,10 +22,9 @@ class ConstructQuery():
         self.query = INITIAL_SELECT % (columnsString, self.tableName)
 
     def setInsert(self, values):
-        valuesString = ','.join("'"+x+"'" for x in values)
+        columnsString = ','.join(key for (key, value) in self.metaObject.get_meta().items() if value.type != 'key')
         self.args = values
-        self.query = INITIAL_INSERT % (self.tableName, "?, "*(len(values)-1) + "?")
-        print(self.args)
+        self.query = INITIAL_INSERT % (self.tableName, columnsString, "?, "*(len(values)-1) + "?")
 
     def replaceField(self, secondTableName, key1, key2, replaceKey):
         self.query += (LEFTJOIN % (secondTableName, self.tableName, key1, secondTableName, key2))
@@ -39,7 +38,6 @@ class ConstructQuery():
             self.query += SEARCH % (
                 logicalConnection, colName, condition, '?')
             self.args.append(searchWord)
-            #self.args.append((searchWord,'%'+searchWord+'%')[condition == 'LIKE'])
 
     def order(self, orderColumn):
         if (orderColumn == None): return

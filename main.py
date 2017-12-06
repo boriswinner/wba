@@ -1,6 +1,5 @@
 import metadata
 import queryconstructor
-import getQueryConstructor
 import dbconnector
 from flask import Flask, url_for, render_template,request
 
@@ -73,13 +72,14 @@ def view_table():
         query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
     query.order(orderColumnName)
     addedValues = request.args.getlist(constants.addIntoTableInputsName);
-    addIntoTableQuery = url_for('add',tableName=tableName)
-    if (addIntoTableQuery is not None):
+    print(addedValues)
+    if (addedValues):
         insertQuery = queryconstructor.ConstructQuery(t);
         insertQuery.setInsert(addedValues)
-        print(insertQuery.query)
-        print(query.query)
-        #cur.execute(insertQuery.query,['1','p'])
+        try:
+            cur.execute(insertQuery.query, insertQuery.args)
+        except:
+            return ('error')
     try:
         cur.execute(query.query, query.args)
         tableData = cur.fetchall()
@@ -98,18 +98,9 @@ def view_table():
                            selectedConditions=condition, selectedLogicalConnections=logicalConnections,
                            selectedOrder=orderColumnName, selectedStrings=searchString,
                            selectedPagination=selectedPagination, selectedPage=selectedPage,
-                           columnNames=tableColumns, tableData=tableData, meta=meta, addIntoTableQuery = addIntoTableQuery,
-                           tableColumns=tableColumns)
+                           columnNames=tableColumns, tableData=tableData, meta=meta,
+                           tableColumns=[x for x in tableColumns if meta[x].type != 'key'])
 
-@app.route("/add", methods=['GET', 'POST'])
-def add():
-    dbconnector.scheduleDB.connect_to_database()
-    dbconnector.scheduleDB.set_tables_list()
-    cur = dbconnector.scheduleDB.cur
-    tableName = request.args.get('tableName')
-    tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
-    tableColumns = [str(i[0]).strip() for i in tableColumns]
-    return (render_template('addIntoTable.html', tableColumns = tableColumns, inputName = constants.addIntoTableInputsName))
 
 if __name__ == "__main__":
     app.run(debug=True)
