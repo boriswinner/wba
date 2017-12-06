@@ -73,6 +73,7 @@ def view_table():
     query.order(orderColumnName)
     try:
         cur.execute(query.query, query.args)
+        tableData = cur.fetchall()
     except:
         return render_template("tableView.html", tableName=tableName,
                                tablePickerElements=dbconnector.scheduleDB.tablesList,
@@ -81,7 +82,6 @@ def view_table():
                                selectedConditions=condition, selectedLogicalConnections=logicalConnections,
                                selectedOrder=orderColumnName, selectedStrings=searchString,
                                selectedPagination=selectedPagination, selectedPage=selectedPage, incorrectQuery = 1)
-    tableData = cur.fetchall()
 
     return render_template("tableView.html", tableName=tableName, tablePickerElements=dbconnector.scheduleDB.tablesList,
                            columnPickerElements=query.currentColumns,
