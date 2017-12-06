@@ -1,9 +1,8 @@
 import metadata
 import queryconstructor
+import getQueryConstructor
 import dbconnector
-from flask import Flask
-from flask import render_template
-from flask import request
+from flask import Flask, url_for, render_template,request
 
 app = Flask(__name__)
 
@@ -71,6 +70,7 @@ def view_table():
     for i in range(len(searchString)):
         query.search(searchColumn[i], searchString[i], condition[i], logicalConnections[i])
     query.order(orderColumnName)
+    addIntoTableQuery = url_for('add',tableName=tableName)
     try:
         cur.execute(query.query, query.args)
         tableData = cur.fetchall()
@@ -89,8 +89,17 @@ def view_table():
                            selectedConditions=condition, selectedLogicalConnections=logicalConnections,
                            selectedOrder=orderColumnName, selectedStrings=searchString,
                            selectedPagination=selectedPagination, selectedPage=selectedPage,
-                           columnNames=tableColumns, tableData=tableData, meta=meta)
+                           columnNames=tableColumns, tableData=tableData, meta=meta, addIntoTableQuery = addIntoTableQuery)
 
+@app.route("/add", methods=['GET', 'POST'])
+def add():
+    dbconnector.scheduleDB.connect_to_database()
+    dbconnector.scheduleDB.set_tables_list()
+    cur = dbconnector.scheduleDB.cur
+    tableName = request.args.get('tableName')
+    tableColumns = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
+    tableColumns = [str(i[0]).strip() for i in tableColumns]
+    return (render_template('addIntoTable.html', tableColumns = tableColumns, inputName = 'addInput'))
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -11,6 +11,9 @@ where rdb$relation_name= '%s'"""
 class DbConnection:
     connected = 0
     gotTablesList = 0
+    con = None
+    cur = None
+    tablesList = None
 
     def connect_to_database(self):
         if (not self.connected):
