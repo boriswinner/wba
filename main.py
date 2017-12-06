@@ -26,6 +26,7 @@ class Constants:
     logicalConnectionName = 'logicalConnection'
     inputName = 'searchString'
     addIntoTableInputsName = 'addIntoTableInput'
+    deleteIDName = 'deleteID'
     formButtonText = 'View Table'
     conditions = ['LIKE', '>', '<', '>=', '<=', 'IN']
     logicalConnections = ['AND', 'OR']
@@ -86,10 +87,18 @@ def view_table():
         insertQuery = queryconstructor.ConstructQuery(tableMetadataObject)
         insertQuery.setInsert(addedValues)
 
+    #form DELETE query
+
+    deleteID = request.args.get(constants.deleteIDName)
+    if deleteID is not None:
+        deleteQuery = queryconstructor.ConstructQuery(tableMetadataObject)
+        deleteQuery.setDelete(deleteID)
+
     #run queries
 
     try:
         if (len(addedValues) > 0 and len(addedValues[0]) > 0): cur.execute(insertQuery.query, insertQuery.args)
+        if (deleteID is not None): cur.execute(deleteQuery.query, deleteQuery.args)
         cur.execute(selectQuery.query, selectQuery.args)
         tableData = cur.fetchall()
     except:

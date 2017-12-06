@@ -9,9 +9,14 @@
     <tbody>
     {% for i in tableData[(selectedPage|int)*(selectedPagination|int):((selectedPage|int) + 1)*(selectedPagination|int)] %}
         <tr>
+            {% set id = [0] %}
             {% for j in range(columnNames|length) %}
                 <td class="col-md-{{ meta[columnNames[j]].width }}">{{ i[j] }}</td>
+                {% if (meta[columnNames[j]].type == 'key') %}
+                    {% if id.append(id.pop() + i[j]) %}{% endif %}
+                {% endif %}
             {% endfor %}
+            <td class="col-md-2"><a href ="{{ url_for('view_table',deleteID=id[0], tablesPicker=tableName) }}">Delete</a></td>
         </tr>
     {% endfor %}
     </tbody>

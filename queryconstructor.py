@@ -3,6 +3,7 @@ import metadata
 # constants
 INITIAL_SELECT = "SELECT %s from %s"
 INITIAL_INSERT = "INSERT INTO %s(%s) VALUES (%s)"
+INITIAL_DELETE = "DELETE FROM %s WHERE (ID = ?)"
 LEFTJOIN = " LEFT JOIN %s on %s.%s = %s.%s"
 SEARCH = " %s ( %s %s %s ) "
 
@@ -25,6 +26,10 @@ class ConstructQuery():
         columnsString = ','.join(key for (key, value) in self.metaObject.get_meta().items() if value.type != 'key')
         self.args = values
         self.query = INITIAL_INSERT % (self.tableName, columnsString, "?, "*(len(values)-1) + "?")
+
+    def setDelete(self,id):
+        self.query = INITIAL_DELETE % self.tableName
+        self.args.append(int(id))
 
     def replaceField(self, secondTableName, key1, key2, replaceKey):
         self.query += (LEFTJOIN % (secondTableName, self.tableName, key1, secondTableName, key2))
