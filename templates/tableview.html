@@ -70,8 +70,6 @@
 
 {% block content %}
 
-    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addIntoTableModal">Add values
-    </button>
     <form id="filtersForm" class="form-inline" method="GET">
 
         <div id="addIntoTableModal" class="modal fade" role="dialog">
@@ -163,9 +161,9 @@
             </div>
         {% endif %}
         <br>
-        <input type="button" class="btn btn-default" onclick="location.href='{{ addIntoTableQuery }}'"
-               value="Add into table"/>
         {% if tableData is defined %}
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addIntoTableModal">Add values
+    </button>
             <div class="container">
                 <div class="container" align="center">
                     {% with tableData = tableData %}
