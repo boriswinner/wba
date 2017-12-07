@@ -135,7 +135,6 @@ def rowEdit():
     for i in range(len(columnNames)):
         if (columnNames[i] == 'ID'):
             idColumn = i;
-            print('idCol', idColumn)
     for j in globalvars.tableData:
         if (str(j[idColumn]) == str(editID)):
             columns = list(j);
@@ -162,12 +161,9 @@ def editInTable():
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
     oldRow = list(cur.execute("SELECT * FROM %s WHERE ID = (?)" % tableName, [rowID]).fetchall()[0])
-    print(oldRow, columns)
-    #print('fkn '+fullColumnNames)
     for i in range(len(oldRow)):
         if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
             oldRow.pop(i)
-    print(oldRow)
     for i in range (len(oldRow)):
         if (oldRow[i] != columns[i]):
             return render_template('updateResult.html', mode='outdated')
