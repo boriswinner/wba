@@ -38,11 +38,12 @@ class Constants:
 constants = Constants()
 
 
-class globalVars:
+class GlobalVars:
     tableData = []
+    tableDataWithoutRef = []
 
 
-globalvars = globalVars()
+globalvars = GlobalVars()
 
 
 @app.context_processor
@@ -82,6 +83,7 @@ def view_table():
     tableMetadataDict = tableMetadataObject.get_meta()
     selectQuery = queryconstructor.ConstructQuery(tableMetadataObject)
     selectQuery.setSelect()
+    globalvars.tableDataWithoutRef = cur.execute(selectQuery.query).fetchall()
     for i in columnNames:
         if tableMetadataDict[i].type == 'ref':
             selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
@@ -132,36 +134,41 @@ def view_table():
 
 @app.route("/rowEdit", methods=['GET', 'POST'])
 def rowEdit():
-    tableName = request.args.getlist('tableName')
+    tableName = request.args.get('tableName')
     editID = request.args.get('editID')
     columnNames = request.args.getlist('columnNames')
     fullColumnNames = columnNames.copy()
+    tableMetadataObject = getattr(metadata, tableName.lower())
+    tableMetadataDict = tableMetadataObject.get_meta()
+
     for i in range(len(columnNames)):
         if (columnNames[i] == 'ID'):
             idColumn = i;
-    for j in globalvars.tableData:
-        if (str(j[idColumn]) == str(editID)):
-            columns = list(j);
-            break;
-    columns.pop(idColumn)
-    columnNames.pop(idColumn)
-    return render_template('rowEdit.html', columnNames=columnNames, columns=columns, rowID=editID, tableName=tableName,
+
+    for i in range(len(globalvars.tableData)):
+        if (str(globalvars.tableData[i][idColumn]) == str(editID)):
+            editRow = i;
+
+    editRow = list(globalvars.tableDataWithoutRef[editRow])
+
+    for i in range(len(fullColumnNames)):
+        if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
+            editRow.pop(i)
+            columnNames.pop(i)
+
+    return render_template('rowEdit.html', columnNames=columnNames, columns=editRow, rowID=editID, tableName=tableName,
                            fullColumnNames=fullColumnNames)
 
 
 @app.route("/editInTable", methods=['GET', 'POST'])
 def editInTable():
-    tableName = request.args.get('tableName')[2:-2]
+    tableName = request.args.get('tableName')
     columns = request.args.getlist('columns')[0]
-    fullColumnNames = request.args.getlist('fullColumnNames')[0].replace('[', '').replace(']', '').replace("'",
-                                                                                                           '').replace(
-        "\"", '').replace(",", '|').split('|')
+    columns = columns.replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '|').split('|')
+    fullColumnNames = request.args.getlist('fullColumnNames')[0].replace('[', '').replace(']', '').replace("'",'').replace("\"", '').replace(",", '|').split('|')
     fullColumnNames = [i.strip() for i in fullColumnNames]
-    columns = columns.replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '|')
-    columns = columns.split('|')
     rowID = request.args.get('rowID')
-    columnNames = request.args.getlist('columnNames')[0].replace('[', '').replace(']', '').replace("'", '').replace(
-        "\"", '').replace(",", '').split()
+    columnNames = request.args.getlist('columnNames')[0].replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '').split()
     newColumns = request.args.getlist(constants.editInputName)
 
     dbconnector.scheduleDB.connect_to_database()
@@ -173,8 +180,9 @@ def editInTable():
     for i in range(len(oldRow)):
         if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
             oldRow.pop(i)
+
     for i in range(len(oldRow)):
-        if (oldRow[i] != columns[i]):
+        if (str(oldRow[i]).strip() != str(columns[i]).strip()):
             return render_template('updateResult.html', mode='outdated')
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
