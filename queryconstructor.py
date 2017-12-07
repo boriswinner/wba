@@ -39,10 +39,8 @@ class ConstructQuery():
             s += x + " = '" + values[a] + "', "
             a += 1
         s = s[:-2]
-        print(self.tableName, s)
 
         self.query = INITIAL_UPDATE % (self.tableName, s, id)
-        print(self.query)
 
     def replaceField(self, secondTableName, key1, key2, replaceKey):
         self.query += (LEFTJOIN % (secondTableName, self.tableName, key1, secondTableName, key2))

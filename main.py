@@ -37,7 +37,10 @@ class Constants:
 
 constants = Constants()
 
-tableData = []
+class globalVars:
+    tableData = []
+
+globalvars = globalVars()
 
 
 @app.context_processor
@@ -54,7 +57,6 @@ def view_table():
     tableName = request.args.get(constants.tablePickerName)
     if (tableName is None):
         tableName = dbconnector.scheduleDB.tablesList[0]
-    global tableData
 
     #form arguments for query controls
 
@@ -105,7 +107,7 @@ def view_table():
         if (len(addedValues) > 0 and len(addedValues[0]) > 0): cur.execute(insertQuery.query, insertQuery.args)
         if (deleteID is not None): cur.execute(deleteQuery.query, deleteQuery.args)
         cur.execute(selectQuery.query, selectQuery.args)
-        tableData = cur.fetchall()
+        globalvars.tableData = cur.fetchall()
     except:
         return render_template("tableView.html", tableName=tableName,
                                tablePickerElements=dbconnector.scheduleDB.tablesList,
@@ -121,34 +123,35 @@ def view_table():
                            selectedConditions=conditions, selectedLogicalConnections=logicalConnections,
                            selectedOrder=orderColumn, selectedStrings=searchString,
                            selectedPagination=rowsOnPageNumber, selectedPage=selectedPage,
-                           columnNames=tableColumns, tableData=tableData, meta=tableMetadataDict,
+                           columnNames=tableColumns, tableData=globalvars.tableData, meta=tableMetadataDict,
                            tableColumns=[x for x in tableColumns if tableMetadataDict[x].type != 'key'])
 
 @app.route("/rowEdit", methods=['GET', 'POST'])
 def rowEdit():
-    global tableData
     tableName = request.args.getlist('tableName')
     editID = request.args.get('editID')
     columnNames = request.args.getlist('columnNames')
+    fullColumnNames = columnNames.copy()
     for i in range(len(columnNames)):
         if (columnNames[i] == 'ID'):
             idColumn = i;
             print('idCol', idColumn)
-    for j in tableData:
-        print('row ', j[idColumn], str(editID))
+    for j in globalvars.tableData:
         if (str(j[idColumn]) == str(editID)):
             columns = list(j);
             break;
     columns.pop(idColumn)
     columnNames.pop(idColumn)
-    return render_template('rowEdit.html',columnNames = columnNames,columns = columns, rowID = editID, tableName = tableName)
+    return render_template('rowEdit.html',columnNames = columnNames,columns = columns, rowID = editID, tableName = tableName,fullColumnNames = fullColumnNames)
 
 @app.route("/editInTable", methods=['GET', 'POST'])
 def editInTable():
     tableName = request.args.get('tableName').replace('[','').replace(']','').replace("'",'')
     columns = request.args.getlist('columns')[0]
-    columns = columns.replace('[','').replace(']','').replace("'",'').replace("\"",'').replace(",",'')
-    columns = columns.split()
+    fullColumnNames = request.args.getlist('fullColumnNames')[0].replace('[','').replace(']','').replace("'",'').replace("\"",'').replace(",",'|').split('|')
+    fullColumnNames = [i.strip() for i in fullColumnNames]
+    columns = columns.replace('[','').replace(']','').replace("'",'').replace("\"",'').replace(",",'|')
+    columns = columns.split('|')
     rowID = request.args.get('rowID')
     columnNames = request.args.getlist('columnNames')[0].replace('[','').replace(']','').replace("'",'').replace("\"",'').replace(",",'').split()
     newColumns = request.args.getlist(constants.editInputName)
@@ -158,12 +161,21 @@ def editInTable():
     cur = dbconnector.scheduleDB.cur
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
+    oldRow = list(cur.execute("SELECT * FROM %s WHERE ID = (?)" % tableName, [rowID]).fetchall()[0])
+    print(oldRow, columns)
+    #print('fkn '+fullColumnNames)
+    for i in range(len(oldRow)):
+        if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
+            oldRow.pop(i)
+    print(oldRow)
+    for i in range (len(oldRow)):
+        if (oldRow[i] != columns[i]):
+            return render_template('updateResult.html', mode='outdated')
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setUpdate(newColumns, columnNames, rowID)
-    print(query.query)
     cur.execute(query.query)
-    return render_template('sucessfulUpdate.html')
+    return render_template('updateResult.html', mode = 'success')
 
 
 

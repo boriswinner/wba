@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block content %}
+    {% if mode == 'success' %}
+        <h3>Successfully added!</h3>
+    {% endif %}
+    {% if mode == 'outdated' %}
+        <h3>Outdated values! Please open the table again to prevent data loss</h3>
+    {% endif %}
+<input type="button" class="btn btn-default" onclick="location.href='{{url_for('view_table')}}'" value="Go to homepage"/>
+{% endblock %}
