@@ -35,6 +35,8 @@ class Constants:
     yGroupingPickerName = 'yGroupingPicker'
     hideHeadersCheckboxName = 'hideHeaders'
     visibleColumnsPickerName = 'visibleColumnsPicker'
+    defaultXOrderID = 4
+    defaultYOrderID = 4
 
 
 class GlobalVars:
@@ -204,7 +206,6 @@ def editInTable():
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setUpdate(newColumns, columnNames, rowID)
-    print(query.query, query.args)
     cur.execute(query.query,query.args)
     return render_template('updateResult.html', mode='success')
 
@@ -217,7 +218,7 @@ def viewSchedule():
     sc.executeCommonCode()
 
     globalvars.cur.execute(sc.selectQuery.query, sc.selectQuery.args)
-    tableData = globalvars.cur.fetchall()  # not sure if global needed
+    tableData = globalvars.cur.fetchall()
     tableData = [list(i) for i in tableData]
 
     hideHeaders = request.args.get(constants.hideHeadersCheckboxName)
@@ -227,12 +228,12 @@ def viewSchedule():
     xOrderName = request.args.get(constants.xGroupingPickerName)
     yOrderName = request.args.get(constants.yGroupingPickerName)
     if (xOrderName is None):
-        xOrderID = 4
+        xOrderID = constants.defaultXOrderID
     else:
         xOrderID = [i.name for i in sc.tableMetadataDict.values()].index(xOrderName)
 
     if (yOrderName is None):
-        yOrderID = 7
+        yOrderID = constants.defaultYOrderID
     else:
         yOrderID = [i.name for i in sc.tableMetadataDict.values()].index(yOrderName)
     xName = sc.tableMetadataDict[sc.columnNames[xOrderID]].name
