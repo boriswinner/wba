@@ -36,7 +36,7 @@ class Constants:
     hideHeadersCheckboxName = 'hideHeaders'
     visibleColumnsPickerName = 'visibleColumnsPicker'
     defaultXOrderID = 4
-    defaultYOrderID = 4
+    defaultYOrderID = 7
 
 
 class GlobalVars:
@@ -160,41 +160,41 @@ def rowEdit():
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
     columnNames = tableMetadataObject.get_fields()
-    fullColumnNames = columnNames.copy()
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setSelect()
     query.search('ID',editID,'=','where')
     editRow = list(globalvars.cur.execute(query.query,query.args).fetchall()[0])
 
+    fullColumnNames = columnNames.copy()
     for i in range(len(fullColumnNames)):
         if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
             editRow.pop(i)
             columnNames.pop(i)
 
-    return render_template('rowEdit.html', columnNames=columnNames, columns=editRow, rowID=editID, tableName=tableName,
-                           fullColumnNames=fullColumnNames)
+    return render_template('rowEdit.html', columnNames=columnNames, columns=editRow, rowID=editID, tableName=tableName)
 
 
 @app.route("/editInTable", methods=['GET', 'POST'])
 def editInTable():
     tableName = request.args.get('tableName')
+    tableMetadataObject = getattr(metadata, tableName.lower())
+    tableMetadataDict = tableMetadataObject.get_meta()
+    fullColumnNames = tableMetadataObject.get_fields()
+
     columns = request.args.getlist('columns')[0]
     columns = columns.replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '|').split('|')
-    fullColumnNames = request.args.getlist('fullColumnNames')[0].replace('[', '').replace(']', '').replace("'",
-                                                                                                           '').replace(
-        "\"", '').replace(",", '|').split('|')
-    fullColumnNames = [i.strip() for i in fullColumnNames]
     rowID = request.args.get('rowID')
-    columnNames = request.args.getlist('columnNames')[0].replace('[', '').replace(']', '').replace("'", '').replace(
-        "\"", '').replace(",", '').split()
+    columnNames = fullColumnNames.copy()
+    for i in range(len(fullColumnNames)):
+        if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
+            columnNames.pop(i)
+
     newColumns = request.args.getlist(constants.editInputName)
 
     dbconnector.scheduleDB.connect_to_database()
     dbconnector.scheduleDB.set_tables_list()
     cur = dbconnector.scheduleDB.cur
-    tableMetadataObject = getattr(metadata, tableName.lower())
-    tableMetadataDict = tableMetadataObject.get_meta()
     oldRow = list(cur.execute("SELECT * FROM %s WHERE ID = (?)" % tableName, [rowID]).fetchall()[0])
     for i in range(len(oldRow)):
         if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
