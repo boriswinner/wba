@@ -58,10 +58,6 @@ class ConstructQuery():
             else:
                 self.args.append(searchWord)
 
-    def setVisible(self,visibleColumns):
-        if not((visibleColumns is None) or (len(visibleColumns) == 0)):
-            self.query = re.sub('SELECT.*?from', 'SELECT '+','.join(i for i in visibleColumns)+' from', self.query)
-
     def order(self, orderColumn):
         if (orderColumn == None): return
         self.query += ' ORDER BY %s' % (orderColumn)

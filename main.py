@@ -210,7 +210,7 @@ def editInTable():
 def viewSchedule():
     tableName = constants.schedItemsTableName
 
-    #copypaste
+    # copypaste
     searchColumn = request.args.getlist(constants.columnPickerName)
     searchString = request.args.getlist(constants.inputName)
     conditions = request.args.getlist(constants.conditionsPickerName)
@@ -218,12 +218,17 @@ def viewSchedule():
     columnNames = globalvars.cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     columnNames = [str(i[0]).strip() for i in columnNames]
 
-    visibleColumns = request.args.getlist(constants.visibleColumnsPickerName)
-    print(visibleColumns)
-    #return str(visibleColumns)
-
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
+
+    visibleColumns = request.args.getlist(constants.visibleColumnsPickerName)
+    visibleColumnNames = []
+    visibleColumnNumbers = []
+    for i in range(len(columnNames)):
+        if (tableMetadataDict[columnNames[i]].name in visibleColumns):
+            visibleColumnNames.append(columnNames[i])
+            visibleColumnNumbers.append(i)
+    print(visibleColumnNames)
 
     selectQuery = queryconstructor.ConstructQuery(tableMetadataObject)
     selectQuery.setSelect()
@@ -231,12 +236,11 @@ def viewSchedule():
         if tableMetadataDict[i].type == 'ref':
             selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
                                      tableMetadataDict[i].refName)
-    selectQuery.setVisible(visibleColumns)
     for i in range(len(searchString)):
         selectQuery.search(searchColumn[i], searchString[i], conditions[i], logicalConnections[i])
 
     print(selectQuery.query)
-    globalvars.cur.execute(selectQuery.query,selectQuery.args)
+    globalvars.cur.execute(selectQuery.query, selectQuery.args)
     tableData = globalvars.cur.fetchall()  # not sure if global needed
     tableData = [list(i) for i in tableData]
 
@@ -274,9 +278,13 @@ def viewSchedule():
         else:
             scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
 
-    return render_template('scheduleView.html', tableData=scheduleTable, meta=tableMetadataDict, selectedPage=0,
-                           selectedPagination=100, columnNames=columnNames, xName = xName, yName = yName, pickerElements =[i.name for i in tableMetadataDict.values()], hideHeaders = hideHeaders, columnPickerElements=selectQuery.currentColumns, selectedColumns=searchColumn,
-                           selectedConditions=conditions, selectedLogicalConnections=logicalConnections, selectedStrings=searchString)
+    return render_template('scheduleView.html', tableData=scheduleTable, meta=tableMetadataDict,
+                           columnNames=columnNames, xName=xName, yName=yName,
+                           pickerElements=[i.name for i in tableMetadataDict.values()], hideHeaders=hideHeaders,
+                           columnPickerElements=selectQuery.currentColumns, selectedColumns=searchColumn,
+                           selectedConditions=conditions, selectedLogicalConnections=logicalConnections,
+                           selectedStrings=searchString, visibleColumnNames = visibleColumnNames, visibleColumnNumbers = visibleColumnNumbers)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

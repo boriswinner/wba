@@ -11,7 +11,7 @@
             {% include 'pickerGen.html' %}
         {% endwith %}
     Visible columns:
-        {% with pickerName = visibleColumnsPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)', multiple = 1 %}
+        {% with pickerName = visibleColumnsPickerName, pickerElements = pickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)', multiple = 1 %}
             {% include 'pickerGen.html' %}
         {% endwith %}
         <input type="checkbox" id="{{ hideHeadersCheckboxName }}" name="{{ hideHeadersCheckboxName }}" value="true" {% if hideHeaders %}checked{% endif %}>
@@ -64,7 +64,7 @@
                                 {% if not hideHeaders%}
                                     <thead>
                                     <tr>
-                                        {% for i in columnNames %}
+                                        {% for i in visibleColumnNames %}
                                             <th>{{ meta[i].name }}</th>
                                         {% endfor %}
                                     </tr>
@@ -75,8 +75,8 @@
                                     {% if value1 is not none %}
                                         {% for i in value1%}
                                             <tr>
-                                                {% for j in i %}
-                                                    <td>{{ j }}</td>
+                                                {% for j in range(i|length) %}
+                                                    {% if j in visibleColumnNumbers %}<td>{{ i[j] }}</td>{% endif %}
                                                 {% endfor %}
                                             </tr>
                                         {% endfor %}
