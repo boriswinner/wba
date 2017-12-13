@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block content %}
+                <div class="container">
+                <div class="container" align="center">
+                    {% with tableData = tableData %}
+                        {% include 'tableGen.html' %}
+                    {% endwith %}
+                </div>
+            </div>
+{% endblock %}

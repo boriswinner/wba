@@ -33,6 +33,7 @@ class Constants:
     conditions = ['LIKE', '>', '<', '>=', '<=', 'IN']
     logicalConnections = ['AND', 'OR']
     paginationPickerElements = ['5', '10', '20', '50', '100']
+    schedItemsTableName = 'SCHED_ITEMS'
 
 
 constants = Constants()
@@ -190,6 +191,47 @@ def editInTable():
     cur.execute(query.query)
     return render_template('updateResult.html', mode='success')
 
+@app.route("/schedule", methods=['GET', 'POST'])
+def viewSchedule():
+    dbconnector.scheduleDB.connect_to_database()
+    dbconnector.scheduleDB.set_tables_list()
+    cur = dbconnector.scheduleDB.cur
+    tableName = constants.schedItemsTableName
+
+    columnNames = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
+    columnNames = [str(i[0]).strip() for i in columnNames]
+
+    tableMetadataObject = getattr(metadata, tableName.lower())
+    tableMetadataDict = tableMetadataObject.get_meta()
+
+    selectQuery = queryconstructor.ConstructQuery(tableMetadataObject)
+    selectQuery.setSelect()
+
+
+    cur.execute(selectQuery.query)
+    tableData = cur.fetchall() #not sure if global needed
+    tableData = [list(i) for i in tableData]
+
+    xOrderID = 4 #temporary magic numbers
+    yOrderID = 7
+
+    tableData = sorted(tableData, key=lambda x: x[yOrderID])
+    #return str(tableData)
+    currentY = 0
+    currentI = -1
+    for i in range(len(tableData)):
+        if (i == 0) or (tableData[i][yOrderID] != currentY):
+            currentI += 1
+            currentY = tableData[i][yOrderID]
+            tableData[i].pop(currentY)
+            tableData[currentI] = [currentY,tableData[i]]
+            #return str(tableData)
+        elif (tableData[i][yOrderID] == currentY):
+            tableData[i].pop(currentY)
+            tableData[currentI].append(tableData[i])
+            #return str(tableData)
+
+    return str(tableData)
 
 if __name__ == "__main__":
     app.run(debug=True)
