@@ -1,10 +1,7 @@
 import metadata
 import queryconstructor
 import dbconnector
-import re
 from flask import Flask, url_for, render_template, request
-
-app = Flask(__name__)
 
 
 class Constants:
@@ -36,15 +33,29 @@ class Constants:
     schedItemsTableName = 'SCHED_ITEMS'
 
 
-constants = Constants()
-
-
 class GlobalVars:
     tableData = []
     tableDataWithoutRef = []
+    cur = None
 
 
+constants = Constants()
 globalvars = GlobalVars()
+
+
+def create_app():
+    app = Flask(__name__)
+
+    def run_on_start():
+        dbconnector.scheduleDB.connect_to_database()
+        dbconnector.scheduleDB.set_tables_list()
+        globalvars.cur = dbconnector.scheduleDB.cur
+
+    run_on_start()
+    return app
+
+
+app = create_app()
 
 
 @app.context_processor
@@ -54,10 +65,6 @@ def inject_globals():
 
 @app.route("/", methods=['GET', 'POST'])
 def view_table():
-    dbconnector.scheduleDB.connect_to_database()
-    dbconnector.scheduleDB.set_tables_list()
-    cur = dbconnector.scheduleDB.cur
-
     tableName = request.args.get(constants.tablePickerName)
     if (tableName is None):
         tableName = dbconnector.scheduleDB.tablesList[0]
@@ -72,7 +79,7 @@ def view_table():
     searchString = request.args.getlist(constants.inputName)
     conditions = request.args.getlist(constants.conditionsPickerName)
     logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
-    columnNames = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
+    columnNames = globalvars.cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     columnNames = [str(i[0]).strip() for i in columnNames]
     selectedPage = request.args.get(constants.pagePickerName)
     if selectedPage is None:
@@ -84,7 +91,7 @@ def view_table():
     tableMetadataDict = tableMetadataObject.get_meta()
     selectQuery = queryconstructor.ConstructQuery(tableMetadataObject)
     selectQuery.setSelect()
-    globalvars.tableDataWithoutRef = cur.execute(selectQuery.query).fetchall()
+    globalvars.tableDataWithoutRef = globalvars.cur.execute(selectQuery.query).fetchall()
     for i in columnNames:
         if tableMetadataDict[i].type == 'ref':
             selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
@@ -110,10 +117,10 @@ def view_table():
     # run queries
 
     try:
-        if ('insertQuery' in locals()): cur.execute(insertQuery.query, insertQuery.args)
-        if ('deleteQuery' in locals()): cur.execute(deleteQuery.query, deleteQuery.args)
-        cur.execute(selectQuery.query, selectQuery.args)
-        globalvars.tableData = cur.fetchall()
+        if ('insertQuery' in locals()): globalvars.cur.execute(insertQuery.query, insertQuery.args)
+        if ('deleteQuery' in locals()): globalvars.cur.execute(deleteQuery.query, deleteQuery.args)
+        globalvars.cur.execute(selectQuery.query, selectQuery.args)
+        globalvars.tableData = globalvars.cur.fetchall()
     except:
         return render_template("tableView.html", tableName=tableName,
                                tablePickerElements=dbconnector.scheduleDB.tablesList,
@@ -166,10 +173,13 @@ def editInTable():
     tableName = request.args.get('tableName')
     columns = request.args.getlist('columns')[0]
     columns = columns.replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '|').split('|')
-    fullColumnNames = request.args.getlist('fullColumnNames')[0].replace('[', '').replace(']', '').replace("'",'').replace("\"", '').replace(",", '|').split('|')
+    fullColumnNames = request.args.getlist('fullColumnNames')[0].replace('[', '').replace(']', '').replace("'",
+                                                                                                           '').replace(
+        "\"", '').replace(",", '|').split('|')
     fullColumnNames = [i.strip() for i in fullColumnNames]
     rowID = request.args.get('rowID')
-    columnNames = request.args.getlist('columnNames')[0].replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '').split()
+    columnNames = request.args.getlist('columnNames')[0].replace('[', '').replace(']', '').replace("'", '').replace(
+        "\"", '').replace(",", '').split()
     newColumns = request.args.getlist(constants.editInputName)
 
     dbconnector.scheduleDB.connect_to_database()
@@ -191,14 +201,12 @@ def editInTable():
     cur.execute(query.query)
     return render_template('updateResult.html', mode='success')
 
+
 @app.route("/schedule", methods=['GET', 'POST'])
 def viewSchedule():
-    dbconnector.scheduleDB.connect_to_database()
-    dbconnector.scheduleDB.set_tables_list()
-    cur = dbconnector.scheduleDB.cur
     tableName = constants.schedItemsTableName
 
-    columnNames = cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
+    columnNames = globalvars.cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     columnNames = [str(i[0]).strip() for i in columnNames]
 
     tableMetadataObject = getattr(metadata, tableName.lower())
@@ -211,42 +219,30 @@ def viewSchedule():
             selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
                                      tableMetadataDict[i].refName)
 
-
-    cur.execute(selectQuery.query)
-    tableData = cur.fetchall() #not sure if global needed
+    globalvars.cur.execute(selectQuery.query)
+    tableData = globalvars.cur.fetchall()  # not sure if global needed
     tableData = [list(i) for i in tableData]
 
-    xOrderID = 4 #temporary magic numbers
+    xOrderID = 4  # temporary magic numbers
     yOrderID = 7
-    #return str(columnNames)
-    t1, t2 = columnNames[xOrderID],columnNames[yOrderID]
+    xName = tableMetadataDict[columnNames[xOrderID]].name
+    yName = tableMetadataDict[columnNames[yOrderID]].name
+    t1, t2 = columnNames[xOrderID], columnNames[yOrderID]
     columnNames.remove(t1)
     if (t1 != t2): columnNames.remove(t2)
 
     scheduleTable = dict.fromkeys(i[yOrderID] for i in tableData)
     for key in scheduleTable:
-        scheduleTable[key] = dict.fromkeys(i[xOrderID] for i in tableData)
+        scheduleTable[key] = dict.fromkeys([i[xOrderID] for i in tableData], [])
 
     for i in tableData:
         t = i.copy()
-        if (yOrderID > xOrderID):
-            del t[yOrderID]
-            del t[xOrderID]
-        elif (yOrderID > xOrderID):
-            del t[xOrderID]
-            del t[yOrderID]
-        else:
-            del t[xOrderID]
-        if scheduleTable[i[yOrderID]][i[xOrderID]] is None:
-            scheduleTable[i[yOrderID]][i[xOrderID]] = [t]
-        else:
-            scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
+        del t[max(xOrderID, yOrderID)]
+        if (xOrderID != yOrderID): del t[min(xOrderID, yOrderID)]
+        scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
 
-    #t = [ v for v in scheduleTable.values() ]
-    #for i in range(len(t)):
-        #t[i] = [v for v in t[i].values()]
-    #return str(scheduleTable)
-    return render_template('scheduleView.html',tableData = scheduleTable,meta = tableMetadataDict, selectedPage = 0, selectedPagination = 100, columnNames = columnNames)
+    return render_template('scheduleView.html', tableData=scheduleTable, meta=tableMetadataDict, selectedPage=0,
+                           selectedPagination=100, columnNames=columnNames, xName=xName, yName=yName)
 
 
 if __name__ == "__main__":

@@ -1,23 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Study Schedule</title>
-    <meta charset="utf-8">
-    <script src="../static/jquery-3.2.1.min.js"></script>
-    <style type="text/css">
-        th,tr,td {
-            text-align: center;
-            border: 1px solid palegreen;
-        }
-    </style>
-    {% block functions %}
-    {% endblock %}
-</head>
+{% extends "layout.html" %}
 {% block content %}
 
     <table>
         <tr>
-            <th>Сортировка</th>
+            <th>{{ xName }}<br>-----<br>{{ yName }}</th>
             {% set iterated = [0] %}
             {% for key, value in tableData.items() if iterated[0] < 1 %}
                 {% if iterated.append(iterated.pop() + 1) %}{% endif %}
