@@ -244,13 +244,16 @@ def viewSchedule():
 
     scheduleTable = dict.fromkeys(i[yOrderID] for i in tableData)
     for key in scheduleTable:
-        scheduleTable[key] = dict.fromkeys([i[xOrderID] for i in tableData], [])
+        scheduleTable[key] = dict.fromkeys([i[xOrderID] for i in tableData])
 
     for i in tableData:
         t = i.copy()
         del t[max(xOrderID, yOrderID)]
         if (xOrderID != yOrderID): del t[min(xOrderID, yOrderID)]
-        scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
+        if scheduleTable[i[yOrderID]][i[xOrderID]] is None:
+            scheduleTable[i[yOrderID]][i[xOrderID]] = [t]
+        else:
+            scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
 
     return render_template('scheduleView.html', tableData=scheduleTable, meta=tableMetadataDict, selectedPage=0,
                            selectedPagination=100, columnNames=columnNames, xName = xName, yName = yName, pickerElements =[i.name for i in tableMetadataDict.values()] )
