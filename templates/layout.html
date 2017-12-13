@@ -27,9 +27,18 @@
 
 <body>
 {% block header %}
-    <h3>
-        <center>Study Schedule Application</center>
-    </h3>
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Study Schedule Application</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a href = {{ url_for("view_table") }}>View tables</a></li>
+      <li><a href = {{ url_for("viewSchedule") }}>View schedule</a></li>
+    </ul>
+  </div>
+</nav>
+
 {% endblock %}
 {% block content %}{% endblock %}
 </body>
