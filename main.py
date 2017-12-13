@@ -209,6 +209,11 @@ def editInTable():
 def viewSchedule():
     tableName = constants.schedItemsTableName
 
+    #copypaste
+    searchColumn = request.args.getlist(constants.columnPickerName)
+    searchString = request.args.getlist(constants.inputName)
+    conditions = request.args.getlist(constants.conditionsPickerName)
+    logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
     columnNames = globalvars.cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     columnNames = [str(i[0]).strip() for i in columnNames]
 
@@ -221,8 +226,10 @@ def viewSchedule():
         if tableMetadataDict[i].type == 'ref':
             selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
                                      tableMetadataDict[i].refName)
+    for i in range(len(searchString)):
+        selectQuery.search(searchColumn[i], searchString[i], conditions[i], logicalConnections[i])
 
-    globalvars.cur.execute(selectQuery.query)
+    globalvars.cur.execute(selectQuery.query,selectQuery.args)
     tableData = globalvars.cur.fetchall()  # not sure if global needed
     tableData = [list(i) for i in tableData]
 
@@ -261,7 +268,8 @@ def viewSchedule():
             scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
 
     return render_template('scheduleView.html', tableData=scheduleTable, meta=tableMetadataDict, selectedPage=0,
-                           selectedPagination=100, columnNames=columnNames, xName = xName, yName = yName, pickerElements =[i.name for i in tableMetadataDict.values()], hideHeaders = hideHeaders )
+                           selectedPagination=100, columnNames=columnNames, xName = xName, yName = yName, pickerElements =[i.name for i in tableMetadataDict.values()], hideHeaders = hideHeaders, columnPickerElements=selectQuery.currentColumns, selectedColumns=searchColumn,
+                           selectedConditions=conditions, selectedLogicalConnections=logicalConnections, selectedStrings=searchString)
 
 if __name__ == "__main__":
     app.run(debug=True)
