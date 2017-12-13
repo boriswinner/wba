@@ -4,8 +4,13 @@
     <table id="dataView" class="table table-striped">
         <thead>
         <tr>
-                    {% for key, value in tableData.items() %}
-            
+            {% set iterated = [0] %}
+            {% for key, value in tableData.items() if iterated[0] < 1 %}
+                {% if iterated.append(iterated.pop() + 1) %}{% endif %}
+                {% for key1, value1 in value.items() %}
+                    <th>{{ key1 }}</th>
+                {% endfor %}
+            {% endfor %}
         </tr>
         <tr>
             {% for i in columnNames %}
