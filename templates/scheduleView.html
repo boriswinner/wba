@@ -1,8 +1,23 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Study Schedule</title>
+    <meta charset="utf-8">
+    <script src="../static/jquery-3.2.1.min.js"></script>
+    <style type="text/css">
+        th,tr,td {
+            text-align: center;
+            border: 1px solid palegreen;
+        }
+    </style>
+    {% block functions %}
+    {% endblock %}
+</head>
 {% block content %}
 
-    <table align="center">
+    <table text-align="center">
         <tr>
+            <th>Сортировка</th>
             {% set iterated = [0] %}
             {% for key, value in tableData.items() if iterated[0] < 1 %}
                 {% if iterated.append(iterated.pop() + 1) %}{% endif %}
@@ -11,32 +26,35 @@
                 {% endfor %}
             {% endfor %}
         </tr>
-        <td>
-            <table id="dataView" class="table table-striped">
-                <thead>
-                <tr>
-                    {% for i in columnNames %}
-                        <th>{{ meta[i].name }}</th>
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for key, value in tableData.items() %}
-                    <tr>
-                    <td>{{ key }}</td>
-                        {% for key1, value1 in value.items() %}
-                            {% for i in value1%}
-                                <tr>
-                                {% for j in i %}
-                                    <td>{{ j }}</td>
-                                {% endfor %}
-                                </tr>
+        {% for key, value in tableData.items() %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>
+                    <table id="dataView" class="table table-striped">
+                        <thead>
+                        <tr>
+                            {% for i in columnNames %}
+                                <th>{{ meta[i].name }}</th>
                             {% endfor %}
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                {% for key1, value1 in value.items() %}
+                                    {% for i in value1%}
+                                        <tr>
+                                            {% for j in i %}
+                                                <td>{{ j }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        {% endfor %}
+
     </table>
 {% endblock %}

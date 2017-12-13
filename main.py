@@ -206,6 +206,10 @@ def viewSchedule():
 
     selectQuery = queryconstructor.ConstructQuery(tableMetadataObject)
     selectQuery.setSelect()
+    for i in columnNames:
+        if tableMetadataDict[i].type == 'ref':
+            selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
+                                     tableMetadataDict[i].refName)
 
 
     cur.execute(selectQuery.query)
