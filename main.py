@@ -155,10 +155,10 @@ def view_table():
 def rowEdit():
     tableName = request.args.get('tableName')
     editID = request.args.get('editID')
-    columnNames = request.args.getlist('columnNames')
-    fullColumnNames = columnNames.copy()
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
+    columnNames = tableMetadataObject.get_fields()
+    fullColumnNames = columnNames.copy()
 
     for i in range(len(columnNames)):
         if (columnNames[i] == 'ID'):
