@@ -67,55 +67,61 @@ def inject_globals():
     return constants.get_constants()
 
 
+class ScheduleCommon():
+    def executeCommonCode(self):
+        self.searchColumn = request.args.getlist(constants.columnPickerName)
+        self.searchString = request.args.getlist(constants.inputName)
+        self.conditions = request.args.getlist(constants.conditionsPickerName)
+        self.logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
+        self.columnNames = globalvars.cur.execute(dbconnector.GETCOLUMNNAMES % (self.tableName)).fetchall()
+        self.columnNames = [str(i[0]).strip() for i in self.columnNames]
+
+        self.tableMetadataObject = getattr(metadata, self.tableName.lower())
+        self.tableMetadataDict = self.tableMetadataObject.get_meta()
+
+        self.selectQuery = queryconstructor.ConstructQuery(self.tableMetadataObject)
+        self.selectQuery.setSelect()
+        globalvars.tableDataWithoutRef = globalvars.cur.execute(self.selectQuery.query).fetchall()
+        for i in self.columnNames:
+            if self.tableMetadataDict[i].type == 'ref':
+                self.selectQuery.replaceField(self.tableMetadataDict[i].refTable, i, self.tableMetadataDict[i].refKey,
+                                              self.tableMetadataDict[i].refName)
+        for i in range(len(self.searchString)):
+            self.selectQuery.search(self.searchColumn[i], self.searchString[i], self.conditions[i],
+                                    self.logicalConnections[i])
+
+    def initTableView(self):
+        self.tableName = request.args.get(constants.tablePickerName)
+        if (self.tableName is None):
+            self.tableName = dbconnector.scheduleDB.tablesList[0]
+        self.orderColumn = request.args.get(constants.orderPickerName)
+        self.rowsOnPageNumber = request.args.get(constants.paginationPickerName)
+        if self.rowsOnPageNumber is None:
+            self.rowsOnPageNumber = constants.paginationPickerElements[0]
+        self.selectedPage = request.args.get(constants.pagePickerName)
+        if self.selectedPage is None:
+            self.selectedPage = 0
+        self.executeCommonCode()
+        self.selectQuery.order(self.orderColumn)
+
+
 @app.route("/", methods=['GET', 'POST'])
 def view_table():
-    tableName = request.args.get(constants.tablePickerName)
-    if (tableName is None):
-        tableName = dbconnector.scheduleDB.tablesList[0]
-
-    # form arguments for query controls
-
-    orderColumn = request.args.get(constants.orderPickerName)
-    rowsOnPageNumber = request.args.get(constants.paginationPickerName)
-    if rowsOnPageNumber is None:
-        rowsOnPageNumber = constants.paginationPickerElements[0]
-    searchColumn = request.args.getlist(constants.columnPickerName)
-    searchString = request.args.getlist(constants.inputName)
-    conditions = request.args.getlist(constants.conditionsPickerName)
-    logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
-    columnNames = globalvars.cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
-    columnNames = [str(i[0]).strip() for i in columnNames]
-    selectedPage = request.args.get(constants.pagePickerName)
-    if selectedPage is None:
-        selectedPage = 0
-
-    # form SELECT query
-
-    tableMetadataObject = getattr(metadata, tableName.lower())
-    tableMetadataDict = tableMetadataObject.get_meta()
-    selectQuery = queryconstructor.ConstructQuery(tableMetadataObject)
-    selectQuery.setSelect()
-    globalvars.tableDataWithoutRef = globalvars.cur.execute(selectQuery.query).fetchall()
-    for i in columnNames:
-        if tableMetadataDict[i].type == 'ref':
-            selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
-                                     tableMetadataDict[i].refName)
-    for i in range(len(searchString)):
-        selectQuery.search(searchColumn[i], searchString[i], conditions[i], logicalConnections[i])
-    selectQuery.order(orderColumn)
+    sc = ScheduleCommon()
+    sc.initTableView()
 
     # form INSERT query
 
     addedValues = request.args.getlist(constants.addIntoTableInputsName)
     if (len(addedValues) > 0 and len(addedValues[0]) > 0):
-        insertQuery = queryconstructor.ConstructQuery(tableMetadataObject)
+        insertQuery = queryconstructor.ConstructQuery(sc.tableMetadataObject)
         insertQuery.setInsert(addedValues)
 
     # form DELETE query
 
     deleteID = request.args.get(constants.deleteIDName)
     if deleteID is not None:
-        deleteQuery = queryconstructor.ConstructQuery(tableMetadataObject)
+        deleteQuery = queryconstructor.ConstructQuery(sc.tableMetadataObject)
         deleteQuery.setDelete(deleteID)
 
     # run queries
@@ -123,25 +129,26 @@ def view_table():
     try:
         if ('insertQuery' in locals()): globalvars.cur.execute(insertQuery.query, insertQuery.args)
         if ('deleteQuery' in locals()): globalvars.cur.execute(deleteQuery.query, deleteQuery.args)
-        globalvars.cur.execute(selectQuery.query, selectQuery.args)
+        globalvars.cur.execute(sc.selectQuery.query, sc.selectQuery.args)
         globalvars.tableData = globalvars.cur.fetchall()
     except:
-        return render_template("tableView.html", tableName=tableName,
+        return render_template("tableView.html", tableName=sc.tableName,
                                tablePickerElements=dbconnector.scheduleDB.tablesList,
-                               columnPickerElements=selectQuery.currentColumns,
-                               selectedColumns=searchColumn,
-                               selectedConditions=conditions, selectedLogicalConnections=logicalConnections,
-                               selectedOrder=orderColumn, selectedStrings=searchString,
-                               selectedPagination=rowsOnPageNumber, selectedPage=selectedPage, incorrectQuery=1)
+                               columnPickerElements=sc.selectQuery.currentColumns,
+                               selectedColumns=sc.searchColumn,
+                               selectedConditions=sc.conditions, selectedLogicalConnections=sc.logicalConnections,
+                               selectedOrder=sc.orderColumn, selectedStrings=sc.searchString,
+                               selectedPagination=sc.rowsOnPageNumber, selectedPage=sc.selectedPage, incorrectQuery=1)
 
-    return render_template("tableView.html", tableName=tableName, tablePickerElements=dbconnector.scheduleDB.tablesList,
-                           columnPickerElements=selectQuery.currentColumns,
-                           selectedColumns=searchColumn,
-                           selectedConditions=conditions, selectedLogicalConnections=logicalConnections,
-                           selectedOrder=orderColumn, selectedStrings=searchString,
-                           selectedPagination=rowsOnPageNumber, selectedPage=selectedPage,
-                           columnNames=columnNames, tableData=globalvars.tableData, meta=tableMetadataDict,
-                           tableColumns=[x for x in columnNames if tableMetadataDict[x].type != 'key'])
+    return render_template("tableView.html", tableName=sc.tableName,
+                           tablePickerElements=dbconnector.scheduleDB.tablesList,
+                           columnPickerElements=sc.selectQuery.currentColumns,
+                           selectedColumns=sc.searchColumn,
+                           selectedConditions=sc.conditions, selectedLogicalConnections=sc.logicalConnections,
+                           selectedOrder=sc.orderColumn, selectedStrings=sc.searchString,
+                           selectedPagination=sc.rowsOnPageNumber, selectedPage=sc.selectedPage,
+                           columnNames=sc.columnNames, tableData=globalvars.tableData, meta=sc.tableMetadataDict,
+                           tableColumns=[x for x in sc.columnNames if sc.tableMetadataDict[x].type != 'key'])
 
 
 @app.route("/rowEdit", methods=['GET', 'POST'])
@@ -208,31 +215,12 @@ def editInTable():
 
 @app.route("/schedule", methods=['GET', 'POST'])
 def viewSchedule():
-    tableName = constants.schedItemsTableName
+    sc = ScheduleCommon()
+    sc.tableName = constants.schedItemsTableName
 
-    # copypaste
-    searchColumn = request.args.getlist(constants.columnPickerName)
-    searchString = request.args.getlist(constants.inputName)
-    conditions = request.args.getlist(constants.conditionsPickerName)
-    logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
-    columnNames = globalvars.cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
-    columnNames = [str(i[0]).strip() for i in columnNames]
+    sc.executeCommonCode()
 
-    tableMetadataObject = getattr(metadata, tableName.lower())
-    tableMetadataDict = tableMetadataObject.get_meta()
-
-
-    selectQuery = queryconstructor.ConstructQuery(tableMetadataObject)
-    selectQuery.setSelect()
-    for i in columnNames:
-        if tableMetadataDict[i].type == 'ref':
-            selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
-                                     tableMetadataDict[i].refName)
-    for i in range(len(searchString)):
-        selectQuery.search(searchColumn[i], searchString[i], conditions[i], logicalConnections[i])
-
-    print(selectQuery.query)
-    globalvars.cur.execute(selectQuery.query, selectQuery.args)
+    globalvars.cur.execute(sc.selectQuery.query, sc.selectQuery.args)
     tableData = globalvars.cur.fetchall()  # not sure if global needed
     tableData = [list(i) for i in tableData]
 
@@ -243,19 +231,19 @@ def viewSchedule():
     xOrderName = request.args.get(constants.xGroupingPickerName)
     yOrderName = request.args.get(constants.yGroupingPickerName)
     if (xOrderName is None):
-        xOrderID = 0  # temporary magic numbers
+        xOrderID = 4
     else:
-        xOrderID = [i.name for i in tableMetadataDict.values()].index(xOrderName)
+        xOrderID = [i.name for i in sc.tableMetadataDict.values()].index(xOrderName)
 
     if (yOrderName is None):
-        yOrderID = 0  # temporary magic numbers
+        yOrderID = 7
     else:
-        yOrderID = [i.name for i in tableMetadataDict.values()].index(yOrderName)
-    xName = tableMetadataDict[columnNames[xOrderID]].name
-    yName = tableMetadataDict[columnNames[yOrderID]].name
-    t1, t2 = columnNames[xOrderID], columnNames[yOrderID]
-    columnNames.remove(t1)
-    if (t1 != t2): columnNames.remove(t2)
+        yOrderID = [i.name for i in sc.tableMetadataDict.values()].index(yOrderName)
+    xName = sc.tableMetadataDict[sc.columnNames[xOrderID]].name
+    yName = sc.tableMetadataDict[sc.columnNames[yOrderID]].name
+    t1, t2 = sc.columnNames[xOrderID], sc.columnNames[yOrderID]
+    sc.columnNames.remove(t1)
+    if (t1 != t2): sc.columnNames.remove(t2)
 
     scheduleTable = dict.fromkeys(i[yOrderID] for i in tableData)
     for key in scheduleTable:
@@ -263,12 +251,12 @@ def viewSchedule():
 
     visibleColumns = request.args.getlist(constants.visibleColumnsPickerName)
     if (visibleColumns is None) or (len(visibleColumns) == 0):
-        visibleColumns = [i.name for i in tableMetadataDict.values()]
+        visibleColumns = [i.name for i in sc.tableMetadataDict.values()]
     visibleColumnNames = []
     visibleColumnNumbers = []
-    for i in range(len(columnNames)):
-        if (tableMetadataDict[columnNames[i]].name in visibleColumns):
-            visibleColumnNames.append(columnNames[i])
+    for i in range(len(sc.columnNames)):
+        if (sc.tableMetadataDict[sc.columnNames[i]].name in visibleColumns):
+            visibleColumnNames.append(sc.columnNames[i])
             visibleColumnNumbers.append(i)
     print(visibleColumnNames)
 
@@ -281,12 +269,13 @@ def viewSchedule():
         else:
             scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
 
-    return render_template('scheduleView.html', tableData=scheduleTable, meta=tableMetadataDict,
-                           columnNames=columnNames, xName=xName, yName=yName,
-                           pickerElements=[i.name for i in tableMetadataDict.values()], hideHeaders=hideHeaders,
-                           columnPickerElements=selectQuery.currentColumns, selectedColumns=searchColumn,
-                           selectedConditions=conditions, selectedLogicalConnections=logicalConnections,
-                           selectedStrings=searchString, visibleColumnNames = visibleColumnNames, visibleColumnNumbers = visibleColumnNumbers)
+    return render_template('scheduleView.html', tableData=scheduleTable, meta=sc.tableMetadataDict,
+                           columnNames=sc.columnNames, xName=xName, yName=yName,
+                           pickerElements=[i.name for i in sc.tableMetadataDict.values()], hideHeaders=hideHeaders,
+                           columnPickerElements=sc.selectQuery.currentColumns, selectedColumns=sc.searchColumn,
+                           selectedConditions=sc.conditions, selectedLogicalConnections=sc.logicalConnections,
+                           selectedStrings=sc.searchString, visibleColumnNames=visibleColumnNames,
+                           visibleColumnNumbers=visibleColumnNumbers)
 
 
 if __name__ == "__main__":
