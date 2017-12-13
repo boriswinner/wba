@@ -222,6 +222,8 @@ def viewSchedule():
     tableMetadataDict = tableMetadataObject.get_meta()
 
     visibleColumns = request.args.getlist(constants.visibleColumnsPickerName)
+    if (visibleColumns is None) or (len(visibleColumns) == 0):
+        visibleColumns = [i.name for i in tableMetadataDict.values()]
     visibleColumnNames = []
     visibleColumnNumbers = []
     for i in range(len(columnNames)):
