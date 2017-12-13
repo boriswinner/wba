@@ -1,10 +1,27 @@
 {% extends "layout.html" %}
 {% block content %}
-                <div class="container">
-                <div class="container" align="center">
-                    {% with tableData = tableData %}
-                        {% include 'tableGen.html' %}
-                    {% endwith %}
-                </div>
-            </div>
+
+    <table id="dataView" class="table table-striped">
+        <thead>
+        <tr>
+                    {% for key, value in tableData.items() %}
+            
+        </tr>
+        <tr>
+            {% for i in columnNames %}
+                <th>{{ meta[i].name }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for key, value in tableData.items() %}
+            <tr>
+                {% for key1, value1 in value.items() %}
+                    <td>{{key1}}</td>
+                    <td>{{value1}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

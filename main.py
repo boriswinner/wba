@@ -144,11 +144,11 @@ def rowEdit():
 
     for i in range(len(columnNames)):
         if (columnNames[i] == 'ID'):
-            idColumn = i;
+            idColumn = i
 
     for i in range(len(globalvars.tableData)):
         if (str(globalvars.tableData[i][idColumn]) == str(editID)):
-            editRow = i;
+            editRow = i
 
     editRow = list(globalvars.tableDataWithoutRef[editRow])
 
@@ -214,24 +214,34 @@ def viewSchedule():
 
     xOrderID = 4 #temporary magic numbers
     yOrderID = 7
+    #return str(columnNames)
+    t1, t2 = columnNames[xOrderID],columnNames[yOrderID]
+    columnNames.remove(t1)
+    columnNames.remove(t2)
 
-    tableData = sorted(tableData, key=lambda x: x[yOrderID])
-    #return str(tableData)
-    currentY = 0
-    currentI = -1
-    for i in range(len(tableData)):
-        if (i == 0) or (tableData[i][yOrderID] != currentY):
-            currentI += 1
-            currentY = tableData[i][yOrderID]
-            tableData[i].pop(currentY)
-            tableData[currentI] = [currentY,tableData[i]]
-            #return str(tableData)
-        elif (tableData[i][yOrderID] == currentY):
-            tableData[i].pop(currentY)
-            tableData[currentI].append(tableData[i])
-            #return str(tableData)
+    scheduleTable = dict.fromkeys(i[yOrderID] for i in tableData)
+    for key in scheduleTable:
+        scheduleTable[key] = dict.fromkeys(i[xOrderID] for i in tableData)
 
-    return str(tableData)
+    for i in tableData:
+        t = i.copy()
+        if (yOrderID > xOrderID):
+            del t[yOrderID]
+            del t[xOrderID]
+        else:
+            del t[xOrderID]
+            del t[yOrderID]
+        if scheduleTable[i[yOrderID]][i[xOrderID]] is None:
+            scheduleTable[i[yOrderID]][i[xOrderID]] = [t]
+        else:
+            scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
+
+    #t = [ v for v in scheduleTable.values() ]
+    #for i in range(len(t)):
+        #t[i] = [v for v in t[i].values()]
+    #return str(scheduleTable)
+    return render_template('scheduleView.html',tableData = scheduleTable,meta = tableMetadataDict, selectedPage = 0, selectedPagination = 100, columnNames = columnNames)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
