@@ -221,16 +221,6 @@ def viewSchedule():
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
 
-    visibleColumns = request.args.getlist(constants.visibleColumnsPickerName)
-    if (visibleColumns is None) or (len(visibleColumns) == 0):
-        visibleColumns = [i.name for i in tableMetadataDict.values()]
-    visibleColumnNames = []
-    visibleColumnNumbers = []
-    for i in range(len(columnNames)):
-        if (tableMetadataDict[columnNames[i]].name in visibleColumns):
-            visibleColumnNames.append(columnNames[i])
-            visibleColumnNumbers.append(i)
-    print(visibleColumnNames)
 
     selectQuery = queryconstructor.ConstructQuery(tableMetadataObject)
     selectQuery.setSelect()
@@ -270,6 +260,17 @@ def viewSchedule():
     scheduleTable = dict.fromkeys(i[yOrderID] for i in tableData)
     for key in scheduleTable:
         scheduleTable[key] = dict.fromkeys([i[xOrderID] for i in tableData])
+
+    visibleColumns = request.args.getlist(constants.visibleColumnsPickerName)
+    if (visibleColumns is None) or (len(visibleColumns) == 0):
+        visibleColumns = [i.name for i in tableMetadataDict.values()]
+    visibleColumnNames = []
+    visibleColumnNumbers = []
+    for i in range(len(columnNames)):
+        if (tableMetadataDict[columnNames[i]].name in visibleColumns):
+            visibleColumnNames.append(columnNames[i])
+            visibleColumnNumbers.append(i)
+    print(visibleColumnNames)
 
     for i in tableData:
         t = i.copy()
