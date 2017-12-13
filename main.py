@@ -33,6 +33,7 @@ class Constants:
     schedItemsTableName = 'SCHED_ITEMS'
     xGroupingPickerName = 'xGroupingPicker'
     yGroupingPickerName = 'yGroupingPicker'
+    hideHeadersCheckboxName = 'hideHeaders'
 
 
 class GlobalVars:
@@ -225,6 +226,10 @@ def viewSchedule():
     tableData = globalvars.cur.fetchall()  # not sure if global needed
     tableData = [list(i) for i in tableData]
 
+    hideHeaders = request.args.get(constants.hideHeadersCheckboxName)
+    if (hideHeaders is None):
+        hideHeaders = 0
+
     xOrderName = request.args.get(constants.xGroupingPickerName)
     yOrderName = request.args.get(constants.yGroupingPickerName)
     if (xOrderName is None):
@@ -256,7 +261,7 @@ def viewSchedule():
             scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
 
     return render_template('scheduleView.html', tableData=scheduleTable, meta=tableMetadataDict, selectedPage=0,
-                           selectedPagination=100, columnNames=columnNames, xName = xName, yName = yName, pickerElements =[i.name for i in tableMetadataDict.values()] )
+                           selectedPagination=100, columnNames=columnNames, xName = xName, yName = yName, pickerElements =[i.name for i in tableMetadataDict.values()], hideHeaders = hideHeaders )
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,6 +1,6 @@
 <table id="dataView" class="table table-striped">
     <thead>
-    <tr>
+    <tr class="header">
         {% for i in columnNames %}
             <th>{{ meta[i].name }}</th>
         {% endfor %}
@@ -8,7 +8,7 @@
     </thead>
     <tbody>
     {% for i in tableData[(selectedPage|int)*(selectedPagination|int):((selectedPage|int) + 1)*(selectedPagination|int)] %}
-        <tr>
+        <tr class="header">
             {% set id = [0] %}
             {% for j in range(columnNames|length) %}
                 <td class="col-md-{{ meta[columnNames[j]].width }}">{{ i[j] }}</td>

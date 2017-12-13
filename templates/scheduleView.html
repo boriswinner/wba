@@ -1,15 +1,22 @@
 {% extends "layout.html" %}
+
+{% block functions %}
+    {{ super() }}
+{% endblock %}
+
 {% block content %}
     <form id="filtersForm" class="form-inline" method="GET">
-    Choose the x-coordinate grouping:
-    {% with pickerName = xGroupingPickerName, pickerElements = pickerElements, selectedName = xName, onChangeFunc='highlight(this)' %}
-        {% include 'pickerGen.html' %}
-    {% endwith %}
-    Choose the x-coordinate grouping:
-    {% with pickerName = yGroupingPickerName, pickerElements = pickerElements, selectedName = yName, onChangeFunc='highlight(this)' %}
-        {% include 'pickerGen.html' %}
-    {% endwith %}
-    <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
+        Choose the x-coordinate grouping:
+        {% with pickerName = xGroupingPickerName, pickerElements = pickerElements, selectedName = xName, onChangeFunc='highlight(this)' %}
+            {% include 'pickerGen.html' %}
+        {% endwith %}
+        Choose the x-coordinate grouping:
+        {% with pickerName = yGroupingPickerName, pickerElements = pickerElements, selectedName = yName, onChangeFunc='highlight(this)' %}
+            {% include 'pickerGen.html' %}
+        {% endwith %}
+        <input type="checkbox" id="{{ hideHeadersCheckboxName }}" name="{{ hideHeadersCheckboxName }}" value="true" {% if hideHeaders %}checked{% endif %}>
+        <label for="hideHeaders">Hide Headers</label>
+        <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
     </form>
 
     <table class="table table-bordered">
@@ -28,32 +35,44 @@
                 <td>{{ key }}</td>
                 {% for key1, value1 in value.items() %}
                     <td>
-                        <table id="dataView" class="table table-bordered">
-                            <thead>
-                            <tr>
-                                {% for i in columnNames %}
-                                    <th>{{ meta[i].name }}</th>
-                                {% endfor %}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                {% if value1 is not none %}
-                                    {% for i in value1%}
-                                        <tr>
-                                            {% for j in i %}
-                                                <td>{{ j }}</td>
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
+                        <div id = "wrap">
+                            <table id="dataView" class="table table-bordered">
+                                {% if not hideHeaders%}
+                                    <thead>
+                                    <tr>
+                                        {% for i in columnNames %}
+                                            <th>{{ meta[i].name }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
                                 {% endif %}
-                            </tr>
-                            </tbody>
-                        </table>
+                                <tbody>
+                                <tr>
+                                    {% if value1 is not none %}
+                                        {% for i in value1%}
+                                            <tr>
+                                                {% for j in i %}
+                                                    <td>{{ j }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </td>
                 {% endfor %}
             </tr>
         {% endfor %}
 
     </table>
+
+    <script>
+        document.getElementById("wrap").addEventListener("scroll", function(){
+            console.log('1');
+            var translate = "translate(0,"+this.scrollTop+"px)";
+            this.querySelector("thead").style.transform = translate;
+        });
+    </script>
 {% endblock %}
