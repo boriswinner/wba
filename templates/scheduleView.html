@@ -1,8 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 
-    <table id="dataView" class="table table-striped">
-        <thead>
+    <table align="center">
         <tr>
             {% set iterated = [0] %}
             {% for key, value in tableData.items() if iterated[0] < 1 %}
@@ -12,21 +11,32 @@
                 {% endfor %}
             {% endfor %}
         </tr>
-        <tr>
-            {% for i in columnNames %}
-                <th>{{ meta[i].name }}</th>
-            {% endfor %}
-        </tr>
-        </thead>
-        <tbody>
-        {% for key, value in tableData.items() %}
-            <tr>
-                {% for key1, value1 in value.items() %}
-                    <td>{{key1}}</td>
-                    <td>{{value1}}</td>
+        <td>
+            <table id="dataView" class="table table-striped">
+                <thead>
+                <tr>
+                    {% for i in columnNames %}
+                        <th>{{ meta[i].name }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for key, value in tableData.items() %}
+                    <tr>
+                    <td>{{ key }}</td>
+                        {% for key1, value1 in value.items() %}
+                            {% for i in value1%}
+                                <tr>
+                                {% for j in i %}
+                                    <td>{{ j }}</td>
+                                {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
                 {% endfor %}
-            </tr>
-        {% endfor %}
-        </tbody>
+                </tbody>
+            </table>
+        </td>
     </table>
 {% endblock %}
