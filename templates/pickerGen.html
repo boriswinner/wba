@@ -1,5 +1,5 @@
 <select name='{{ pickerName }}' id = '{{pickerName}}' class='selectpicker form-control' {% if onChangeFunc is defined %}
-        onchange="{{ onChangeFunc }}"  {% endif %}>
+        onchange="{{ onChangeFunc }}"  {% endif %} {% if multiple is defined %} multiple {% endif %}>
     {% for i in pickerElements %}
         <option {% if i|string() == selectedName|string() %} selected="selected" {% endif %}
                                                              value='{{ i }}'>{{ i }}</option>

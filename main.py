@@ -34,6 +34,7 @@ class Constants:
     xGroupingPickerName = 'xGroupingPicker'
     yGroupingPickerName = 'yGroupingPicker'
     hideHeadersCheckboxName = 'hideHeaders'
+    visibleColumnsPickerName = 'visibleColumnsPicker'
 
 
 class GlobalVars:
@@ -217,6 +218,10 @@ def viewSchedule():
     columnNames = globalvars.cur.execute(dbconnector.GETCOLUMNNAMES % (tableName)).fetchall()
     columnNames = [str(i[0]).strip() for i in columnNames]
 
+    visibleColumns = request.args.getlist(constants.visibleColumnsPickerName)
+    print(visibleColumns)
+    #return str(visibleColumns)
+
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
 
@@ -226,9 +231,11 @@ def viewSchedule():
         if tableMetadataDict[i].type == 'ref':
             selectQuery.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
                                      tableMetadataDict[i].refName)
+    selectQuery.setVisible(visibleColumns)
     for i in range(len(searchString)):
         selectQuery.search(searchColumn[i], searchString[i], conditions[i], logicalConnections[i])
 
+    print(selectQuery.query)
     globalvars.cur.execute(selectQuery.query,selectQuery.args)
     tableData = globalvars.cur.fetchall()  # not sure if global needed
     tableData = [list(i) for i in tableData]
@@ -240,12 +247,12 @@ def viewSchedule():
     xOrderName = request.args.get(constants.xGroupingPickerName)
     yOrderName = request.args.get(constants.yGroupingPickerName)
     if (xOrderName is None):
-        xOrderID = 4  # temporary magic numbers
+        xOrderID = 0  # temporary magic numbers
     else:
         xOrderID = [i.name for i in tableMetadataDict.values()].index(xOrderName)
 
     if (yOrderName is None):
-        yOrderID = 7  # temporary magic numbers
+        yOrderID = 0  # temporary magic numbers
     else:
         yOrderID = [i.name for i in tableMetadataDict.values()].index(yOrderName)
     xName = tableMetadataDict[columnNames[xOrderID]].name

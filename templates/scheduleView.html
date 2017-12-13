@@ -10,6 +10,10 @@
         {% with pickerName = yGroupingPickerName, pickerElements = pickerElements, selectedName = yName, onChangeFunc='highlight(this)' %}
             {% include 'pickerGen.html' %}
         {% endwith %}
+    Visible columns:
+        {% with pickerName = visibleColumnsPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)', multiple = 1 %}
+            {% include 'pickerGen.html' %}
+        {% endwith %}
         <input type="checkbox" id="{{ hideHeadersCheckboxName }}" name="{{ hideHeadersCheckboxName }}" value="true" {% if hideHeaders %}checked{% endif %}>
         <label for="hideHeaders">Hide Headers</label>
         <p id="pConditions" style="display:inline"></p>
