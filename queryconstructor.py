@@ -53,7 +53,10 @@ class ConstructQuery():
         if len(searchWord) != 0:
             self.query += SEARCH % (
                 logicalConnection, colName, condition, '?')
-            self.args.append(searchWord)
+            if (condition == 'LIKE'):
+                self.args.append('%'+searchWord+'%')
+            else:
+                self.args.append(searchWord)
 
     def order(self, orderColumn):
         if (orderColumn == None): return
