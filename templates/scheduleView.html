@@ -15,7 +15,7 @@
 </head>
 {% block content %}
 
-    <table text-align="center">
+    <table>
         <tr>
             <th>Сортировка</th>
             {% set iterated = [0] %}
@@ -29,18 +29,19 @@
         {% for key, value in tableData.items() %}
             <tr>
                 <td>{{ key }}</td>
-                <td>
-                    <table id="dataView" class="table table-striped">
-                        <thead>
-                        <tr>
-                            {% for i in columnNames %}
-                                <th>{{ meta[i].name }}</th>
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
+                {% for key1, value1 in value.items() %}
+                    <td>
+                        <table id="dataView" class="table table-striped">
+                            <thead>
                             <tr>
-                                {% for key1, value1 in value.items() %}
+                                {% for i in columnNames %}
+                                    <th>{{ meta[i].name }}</th>
+                                {% endfor %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                {% if value1 is not none %}
                                     {% for i in value1%}
                                         <tr>
                                             {% for j in i %}
@@ -48,11 +49,12 @@
                                             {% endfor %}
                                         </tr>
                                     {% endfor %}
-                                {% endfor %}
+                                {% endif %}
                             </tr>
-                        </tbody>
-                    </table>
-                </td>
+                            </tbody>
+                        </table>
+                    </td>
+                {% endfor %}
             </tr>
         {% endfor %}
 

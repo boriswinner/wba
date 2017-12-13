@@ -221,7 +221,7 @@ def viewSchedule():
     #return str(columnNames)
     t1, t2 = columnNames[xOrderID],columnNames[yOrderID]
     columnNames.remove(t1)
-    columnNames.remove(t2)
+    if (t1 != t2): columnNames.remove(t2)
 
     scheduleTable = dict.fromkeys(i[yOrderID] for i in tableData)
     for key in scheduleTable:
@@ -232,9 +232,11 @@ def viewSchedule():
         if (yOrderID > xOrderID):
             del t[yOrderID]
             del t[xOrderID]
-        else:
+        elif (yOrderID > xOrderID):
             del t[xOrderID]
             del t[yOrderID]
+        else:
+            del t[xOrderID]
         if scheduleTable[i[yOrderID]][i[xOrderID]] is None:
             scheduleTable[i[yOrderID]][i[xOrderID]] = [t]
         else:
