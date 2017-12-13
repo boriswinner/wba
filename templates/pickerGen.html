@@ -2,6 +2,6 @@
         onchange="{{ onChangeFunc }}"  {% endif %}>
     {% for i in pickerElements %}
         <option {% if i|string() == selectedName|string() %} selected="selected" {% endif %}
-                                                             value={{ i }}>{{ i }}</option>
+                                                             value='{{ i }}'>{{ i }}</option>
     {% endfor %}
 </select>

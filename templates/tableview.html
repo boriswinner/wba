@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block functions %}
+    {{ super() }}
     <script id="conditionSourceCode" type="text/html">
         <br>
         {% with pickerName = columnPickerName, pickerElements = columnPickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)' %}
@@ -18,10 +19,6 @@
         {% endwith %}
     </script>
     <script>
-        function highlight(obj) {
-            obj.style.background = "yellow"
-        }
-
         function addFilter() {
             var filter = '';
             if ($("#condition").length != 0) {

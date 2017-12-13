@@ -31,6 +31,8 @@ class Constants:
     logicalConnections = ['AND', 'OR']
     paginationPickerElements = ['5', '10', '20', '50', '100']
     schedItemsTableName = 'SCHED_ITEMS'
+    xGroupingPickerName = 'xGroupingPicker'
+    yGroupingPickerName = 'yGroupingPicker'
 
 
 class GlobalVars:
@@ -223,8 +225,17 @@ def viewSchedule():
     tableData = globalvars.cur.fetchall()  # not sure if global needed
     tableData = [list(i) for i in tableData]
 
-    xOrderID = 4  # temporary magic numbers
-    yOrderID = 7
+    xOrderName = request.args.get(constants.xGroupingPickerName)
+    yOrderName = request.args.get(constants.yGroupingPickerName)
+    if (xOrderName is None):
+        xOrderID = 4  # temporary magic numbers
+    else:
+        xOrderID = [i.name for i in tableMetadataDict.values()].index(xOrderName)
+
+    if (yOrderName is None):
+        yOrderID = 7  # temporary magic numbers
+    else:
+        yOrderID = [i.name for i in tableMetadataDict.values()].index(yOrderName)
     xName = tableMetadataDict[columnNames[xOrderID]].name
     yName = tableMetadataDict[columnNames[yOrderID]].name
     t1, t2 = columnNames[xOrderID], columnNames[yOrderID]
@@ -242,8 +253,7 @@ def viewSchedule():
         scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
 
     return render_template('scheduleView.html', tableData=scheduleTable, meta=tableMetadataDict, selectedPage=0,
-                           selectedPagination=100, columnNames=columnNames, xName=xName, yName=yName)
-
+                           selectedPagination=100, columnNames=columnNames, xName = xName, yName = yName, pickerElements =[i.name for i in tableMetadataDict.values()] )
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,7 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
+    <form id="filtersForm" class="form-inline" method="GET">
+    Choose the x-coordinate grouping:
+    {% with pickerName = xGroupingPickerName, pickerElements = pickerElements, selectedName = xName, onChangeFunc='highlight(this)' %}
+        {% include 'pickerGen.html' %}
+    {% endwith %}
+    Choose the x-coordinate grouping:
+    {% with pickerName = yGroupingPickerName, pickerElements = pickerElements, selectedName = yName, onChangeFunc='highlight(this)' %}
+        {% include 'pickerGen.html' %}
+    {% endwith %}
+    <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
+    </form>
 
-    <table>
+    <table class="table table-bordered">
         <tr>
             <th>{{ xName }}<br>-----<br>{{ yName }}</th>
             {% set iterated = [0] %}
@@ -17,7 +28,7 @@
                 <td>{{ key }}</td>
                 {% for key1, value1 in value.items() %}
                     <td>
-                        <table id="dataView" class="table table-striped">
+                        <table id="dataView" class="table table-bordered">
                             <thead>
                             <tr>
                                 {% for i in columnNames %}
