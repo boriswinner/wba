@@ -160,15 +160,10 @@ def rowEdit():
     columnNames = tableMetadataObject.get_fields()
     fullColumnNames = columnNames.copy()
 
-    for i in range(len(columnNames)):
-        if (columnNames[i] == 'ID'):
-            idColumn = i
-
-    for i in range(len(globalvars.tableData)):
-        if (str(globalvars.tableData[i][idColumn]) == str(editID)):
-            editRow = i
-
-    editRow = list(globalvars.tableDataWithoutRef[editRow])
+    query = queryconstructor.ConstructQuery(tableMetadataObject)
+    query.setSelect()
+    query.search('ID',editID,'=','where')
+    editRow = list(globalvars.cur.execute(query.query,query.args).fetchall()[0])
 
     for i in range(len(fullColumnNames)):
         if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
