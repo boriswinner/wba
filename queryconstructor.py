@@ -36,7 +36,8 @@ class ConstructQuery():
         a = 0
         s = ''
         for x in columns:
-            s += x + " = '" + values[a] + "', "
+            s += x + " = " + '?' + ", "
+            self.args.append(values[a])
             a += 1
         s = s[:-2]
 
