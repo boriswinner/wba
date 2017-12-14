@@ -204,7 +204,10 @@ def editInTable():
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setUpdate(newColumns, columnNames, rowID)
-    globalvars.cur.execute(query.query,query.args)
+    try:
+        globalvars.cur.execute(query.query, query.args)
+    except:
+        return render_template('updateResult.html', mode='incorrect')
     return render_template('updateResult.html', mode='success')
 
 
