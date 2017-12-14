@@ -131,6 +131,7 @@ def view_table():
     try:
         if ('insertQuery' in locals()): globalvars.cur.execute(insertQuery.query, insertQuery.args)
         if ('deleteQuery' in locals()): globalvars.cur.execute(deleteQuery.query, deleteQuery.args)
+        print(sc.selectQuery.query, sc.selectQuery.args)
         globalvars.cur.execute(sc.selectQuery.query, sc.selectQuery.args)
         globalvars.tableData = globalvars.cur.fetchall()
     except:
@@ -181,32 +182,29 @@ def editInTable():
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
     fullColumnNames = tableMetadataObject.get_fields()
+    newColumns = request.args.getlist(constants.editInputName)
 
-    columns = request.args.getlist('columns')[0]
-    columns = columns.replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '|').split('|')
+    columnsDataBeforeEdit = request.args.getlist('columns')[0]
+    columnsDataBeforeEdit = columnsDataBeforeEdit.replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '|').split('|')
     rowID = request.args.get('rowID')
     columnNames = fullColumnNames.copy()
     for i in range(len(fullColumnNames)):
         if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
             columnNames.pop(i)
 
-    newColumns = request.args.getlist(constants.editInputName)
 
-    dbconnector.scheduleDB.connect_to_database()
-    dbconnector.scheduleDB.set_tables_list()
-    cur = dbconnector.scheduleDB.cur
-    oldRow = list(cur.execute("SELECT * FROM %s WHERE ID = (?)" % tableName, [rowID]).fetchall()[0])
-    for i in range(len(oldRow)):
+    columnsDataNow = list(globalvars.cur.execute("SELECT * FROM %s WHERE ID = (?)" % tableName, [rowID]).fetchall()[0])
+    for i in range(len(columnsDataNow)):
         if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
-            oldRow.pop(i)
+            columnsDataNow.pop(i)
 
-    for i in range(len(oldRow)):
-        if (str(oldRow[i]).strip() != str(columns[i]).strip()):
+    for i in range(len(columnsDataNow)):
+        if (str(columnsDataNow[i]).strip() != str(columnsDataBeforeEdit[i]).strip()):
             return render_template('updateResult.html', mode='outdated')
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setUpdate(newColumns, columnNames, rowID)
-    cur.execute(query.query,query.args)
+    globalvars.cur.execute(query.query,query.args)
     return render_template('updateResult.html', mode='success')
 
 
@@ -236,6 +234,7 @@ def viewSchedule():
         yOrderID = constants.defaultYOrderID
     else:
         yOrderID = [i.name for i in sc.tableMetadataDict.values()].index(yOrderName)
+
     xName = sc.tableMetadataDict[sc.columnNames[xOrderID]].name
     yName = sc.tableMetadataDict[sc.columnNames[yOrderID]].name
     t1, t2 = sc.columnNames[xOrderID], sc.columnNames[yOrderID]
@@ -255,7 +254,6 @@ def viewSchedule():
         if (sc.tableMetadataDict[sc.columnNames[i]].name in visibleColumns):
             visibleColumnNames.append(sc.columnNames[i])
             visibleColumnNumbers.append(i)
-    print(visibleColumnNames)
 
     for i in tableData:
         t = i.copy()
