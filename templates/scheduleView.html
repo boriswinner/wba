@@ -8,11 +8,11 @@
                 name = $(this).attr("name");
                 objects = $(".tohide[name="+name+"]");
                 if(objects.hasClass("hided")) {
-                    $(this).text('Скрыть');
+                    $(this).text('Hide');
                     objects.removeClass('hided');
                 }
                 else {
-                    $(this).text('Развернуть');
+                    $(this).text('Show');
                     objects.addClass('hided');
                 }
             });
@@ -21,26 +21,6 @@
 {% endblock %}
 
 {% block content %}
-    <a href="#" class="showhide" name = "abc">хуй</a>
-
-    <table>
-        <tr>
-            <td>Не скрывать</td>
-            <td>Не скрывать</td>
-        </tr>
-        <tr>
-            <td>Не скрывать</td>
-            <td>Не скрывать</td>
-        </tr>
-        <tr class="tohide" name="abc">
-            <td>Скрыть</td>
-            <td>Скрыть</td>
-        </tr>
-        <tr class="tohide">
-            <td>Скрыть</td>
-            <td>Скрыть</td>
-        </tr>
-    </table>
 
     <form id="filtersForm" class="form-inline" method="GET">
         Choose the x-coordinate grouping:
@@ -95,25 +75,26 @@
                 {% endfor %}
             {% endfor %}
         </tr>
+        {% set cnt = [0] %}
         {% for key, value in tableData.items() %}
             <tr>
                 <td>{{ key }}</td>
                 {% for key1, value1 in value.items() %}
                     <td>
                         <div id = "wrap">
-                            <table id="dataView" class="table table-bordered">
-                                {% if not hideHeaders%}
-                                    <thead>
+                            {% if value1 is not none %}
+                                <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide table table-bordered">
+                                    {% if not hideHeaders%}
+                                        <thead>
+                                        <tr>
+                                            {% for i in visibleColumnNames %}
+                                                <th>{{ meta[i].name }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                    {% endif %}
+                                    <tbody>
                                     <tr>
-                                        {% for i in visibleColumnNames %}
-                                            <th>{{ meta[i].name }}</th>
-                                        {% endfor %}
-                                    </tr>
-                                    </thead>
-                                {% endif %}
-                                <tbody>
-                                <tr>
-                                    {% if value1 is not none %}
                                         {% for i in value1%}
                                             <tr>
                                                 {% for j in range(i|length) %}
@@ -121,10 +102,12 @@
                                                 {% endfor %}
                                             </tr>
                                         {% endfor %}
-                                    {% endif %}
-                                </tr>
-                                </tbody>
-                            </table>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <a href="#" class="showhide" name="cell{{ cnt[0] }}">Hide</a>
+                                {% if cnt.append(cnt.pop() + 1) %}{% endif %}
+                            {% endif %}
                         </div>
                     </td>
                 {% endfor %}
