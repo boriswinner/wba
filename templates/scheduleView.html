@@ -37,6 +37,8 @@
         {% endwith %}
         <input type="checkbox" id="{{ hideHeadersCheckboxName }}" name="{{ hideHeadersCheckboxName }}" value="true" {% if hideHeaders %}checked{% endif %}>
         <label for="hideHeaders">Hide Headers</label>
+        <input type="checkbox" id="{{ hideCellsCheckboxName }}" name="{{ hideCellsCheckboxName }}" value="true" {% if hideCells %}checked{% endif %}>
+        <label for="hideCells">Hide Cells</label>
         <p id="pConditions" style="display:inline"></p>
         <conditionsTag id="conditionsTag">
             Conditions:
@@ -83,7 +85,7 @@
                     <td>
                         <div id = "wrap">
                             {% if value1 is not none %}
-                                <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide table table-bordered">
+                                <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide {% if hideCells %}hided{% endif %} table table-bordered">
                                     {% if not hideHeaders%}
                                         <thead>
                                         <tr>
@@ -105,7 +107,7 @@
                                     </tr>
                                     </tbody>
                                 </table>
-                                <a href="#" class="showhide" name="cell{{ cnt[0] }}">Hide</a>
+                                <a href="#" class="showhide" name="cell{{ cnt[0] }}">{% if hideCells %}Show{% else %}Hide{% endif %}</a>
                                 {% if cnt.append(cnt.pop() + 1) %}{% endif %}
                             {% endif %}
                         </div>

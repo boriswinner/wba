@@ -34,6 +34,7 @@ class Constants:
     xGroupingPickerName = 'xGroupingPicker'
     yGroupingPickerName = 'yGroupingPicker'
     hideHeadersCheckboxName = 'hideHeaders'
+    hideCellsCheckboxName = 'hideCells'
     visibleColumnsPickerName = 'visibleColumnsPicker'
     defaultXOrderID = 4
     defaultYOrderID = 7
@@ -226,6 +227,10 @@ def viewSchedule():
     if (hideHeaders is None):
         hideHeaders = 0
 
+    hideCells = request.args.get(constants.hideCellsCheckboxName)
+    if (hideCells is None):
+        hideCells = 0
+
     xOrderName = request.args.get(constants.xGroupingPickerName)
     yOrderName = request.args.get(constants.yGroupingPickerName)
     if (xOrderName is None):
@@ -269,7 +274,7 @@ def viewSchedule():
 
     return render_template('scheduleView.html', tableData=scheduleTable, meta=sc.tableMetadataDict,
                            columnNames=sc.columnNames, xName=xName, yName=yName,
-                           pickerElements=[i.name for i in sc.tableMetadataDict.values()], hideHeaders=hideHeaders,
+                           pickerElements=[i.name for i in sc.tableMetadataDict.values()], hideHeaders=hideHeaders, hideCells = hideCells,
                            columnPickerElements=sc.selectQuery.currentColumns, selectedColumns=sc.searchColumn,
                            selectedConditions=sc.conditions, selectedLogicalConnections=sc.logicalConnections,
                            selectedStrings=sc.searchString, visibleColumnNames=visibleColumnNames,
