@@ -32,11 +32,11 @@ class ConstructQuery():
         self.query = INITIAL_DELETE % self.tableName
         self.args.append(int(id))
 
-    def setUpdate(self,values, columns, id):
+    def setUpdate(self, values, columns, id):
         a = 0
         s = ''
         for x in columns:
-            s += x + " = " + '?' + ", "
+            s += x + " = ?, "
             self.args.append(values[a])
             a += 1
         s = s[:-2]
