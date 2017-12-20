@@ -67,6 +67,7 @@
     </form>
 
     <table class="table table-bordered">
+        {% set id = [1] %}
         <tr>
             <th>{{ xName }}<br>-----<br>{{ yName }}</th>
             {% set iterated = [0] %}
@@ -86,6 +87,7 @@
                         <div id = "wrap">
                             {% if value1 is not none %}
                                 <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide {% if hideCells %}hided{% endif %} table table-bordered">
+
                                     {% if not hideHeaders%}
                                         <thead>
                                         <tr>
@@ -102,6 +104,7 @@
                                                 {% for j in range(i|length) %}
                                                     {% if j in visibleColumnNumbers %}<td>{{ i[j] }}</td>{% endif %}
                                                 {% endfor %}
+                                            <td><a href ="{{ url_for('rowEdit', editID=id[0], tableName = tableName) }}">Edit</a></td>
                                             </tr>
                                         {% endfor %}
                                     </tr>

@@ -271,14 +271,13 @@ def viewSchedule():
             scheduleTable[i[yOrderID]][i[xOrderID]] = [t]
         else:
             scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
-
     return render_template('scheduleView.html', tableData=scheduleTable, meta=sc.tableMetadataDict,
                            columnNames=sc.columnNames, xName=xName, yName=yName,
                            pickerElements=[i.name for i in sc.tableMetadataDict.values()], hideHeaders=hideHeaders, hideCells = hideCells,
                            columnPickerElements=sc.selectQuery.currentColumns, selectedColumns=sc.searchColumn,
                            selectedConditions=sc.conditions, selectedLogicalConnections=sc.logicalConnections,
                            selectedStrings=sc.searchString, visibleColumnNames=visibleColumnNames,
-                           visibleColumnNumbers=visibleColumnNumbers)
+                           visibleColumnNumbers=visibleColumnNumbers, tableName = sc.tableName)
 
 
 if __name__ == "__main__":
