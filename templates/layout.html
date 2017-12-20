@@ -15,29 +15,40 @@
             text-align:center;
             margin-left:auto;
             margin-right:auto;}
+        .tohide td
+        {
+            opacity: 1;
+            visibility: visible;
+            transition: all .3s ease-in-out;
+        }
+        .tohide.hided td
+        {
+            opacity: 0;
+            display: none;
+        }
     </style>
     {% block functions %}
         <script>
-        function highlight(obj) {
-            obj.style.background = "yellow"
-        }
+            function highlight(obj) {
+                obj.style.background = "yellow"
+            }
         </script>
     {% endblock %}
 </head>
 
 <body>
 {% block header %}
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">Study Schedule Application</a>
-    </div>
-    <ul class="nav navbar-nav">
-      <li><a href = {{ url_for("view_table") }}>View tables</a></li>
-      <li><a href = {{ url_for("viewSchedule") }}>View schedule</a></li>
-    </ul>
-  </div>
-</nav>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Study Schedule Application</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href = {{ url_for("view_table") }}>View tables</a></li>
+                <li><a href = {{ url_for("viewSchedule") }}>View schedule</a></li>
+            </ul>
+        </div>
+    </nav>
 
 {% endblock %}
 {% block content %}{% endblock %}

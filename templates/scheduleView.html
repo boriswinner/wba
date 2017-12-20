@@ -1,6 +1,47 @@
 {% extends "filtersLayout.html" %}
 
+{% block functions %}
+    {{ super() }}
+    <script>
+        $(document).ready(function(){
+            $('.showhide').click(function () {
+                name = $(this).attr("name");
+                objects = $(".tohide[name="+name+"]");
+                if(objects.hasClass("hided")) {
+                    $(this).text('Скрыть');
+                    objects.removeClass('hided');
+                }
+                else {
+                    $(this).text('Развернуть');
+                    objects.addClass('hided');
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block content %}
+    <a href="#" class="showhide" name = "abc">хуй</a>
+
+    <table>
+        <tr>
+            <td>Не скрывать</td>
+            <td>Не скрывать</td>
+        </tr>
+        <tr>
+            <td>Не скрывать</td>
+            <td>Не скрывать</td>
+        </tr>
+        <tr class="tohide" name="abc">
+            <td>Скрыть</td>
+            <td>Скрыть</td>
+        </tr>
+        <tr class="tohide">
+            <td>Скрыть</td>
+            <td>Скрыть</td>
+        </tr>
+    </table>
+
     <form id="filtersForm" class="form-inline" method="GET">
         Choose the x-coordinate grouping:
         {% with pickerName = xGroupingPickerName, pickerElements = pickerElements, selectedName = xName, onChangeFunc='highlight(this)' %}
@@ -10,7 +51,7 @@
         {% with pickerName = yGroupingPickerName, pickerElements = pickerElements, selectedName = yName, onChangeFunc='highlight(this)' %}
             {% include 'pickerGen.html' %}
         {% endwith %}
-    Visible columns:
+        Visible columns:
         {% with pickerName = visibleColumnsPickerName, pickerElements = pickerElements, selectedName = selectedColumns[i], onChangeFunc='highlight(this)', multiple = 1 %}
             {% include 'pickerGen.html' %}
         {% endwith %}
