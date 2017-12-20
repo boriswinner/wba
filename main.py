@@ -78,7 +78,6 @@ class ScheduleCommon():
         self.logicalConnections = ['WHERE'] + request.args.getlist(constants.logicalConnectionName)
         self.columnNames = globalvars.cur.execute(dbconnector.GETCOLUMNNAMES % (self.tableName)).fetchall()
         self.columnNames = [str(i[0]).strip() for i in self.columnNames]
-
         self.tableMetadataObject = getattr(metadata, self.tableName.lower())
         self.tableMetadataDict = self.tableMetadataObject.get_meta()
 

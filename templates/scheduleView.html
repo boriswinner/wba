@@ -65,9 +65,7 @@
         <button type="button" class="btn btn-default" onclick="deleteFilters()">Delete All Conditions</button>
         <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
     </form>
-
     <table class="table table-bordered">
-        {% set id = [1] %}
         <tr>
             <th>{{ xName }}<br>-----<br>{{ yName }}</th>
             {% set iterated = [0] %}
@@ -87,7 +85,6 @@
                         <div id = "wrap">
                             {% if value1 is not none %}
                                 <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide {% if hideCells %}hided{% endif %} table table-bordered">
-
                                     {% if not hideHeaders%}
                                         <thead>
                                         <tr>
@@ -101,10 +98,14 @@
                                     <tr>
                                         {% for i in value1%}
                                             <tr>
+                                            {% set id = [0] %}
                                                 {% for j in range(i|length) %}
                                                     {% if j in visibleColumnNumbers %}<td>{{ i[j] }}</td>{% endif %}
+                                                    {% if (meta[columnNames[j]].type == 'key') %}
+                                                        {% if id.append(id.pop() + i[j]) %}{% endif %}
+                                                    {% endif %}
                                                 {% endfor %}
-                                            <td><a href ="{{ url_for('rowEdit', editID=id[0], tableName = tableName) }}">Edit</a></td>
+                                                <td><a href ="{{ url_for('rowEdit', editID=id[0], tableName = tableName) }}">Edit</a></td>
                                             </tr>
                                         {% endfor %}
                                     </tr>
