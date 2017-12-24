@@ -2,6 +2,7 @@ import metadata
 import queryconstructor
 import dbconnector
 from flask import Flask, url_for, render_template, request
+from flask_jsglue import JSGlue
 
 
 class Constants:
@@ -52,6 +53,7 @@ globalvars = GlobalVars()
 
 def create_app():
     app = Flask(__name__)
+    jsglue = JSGlue(app)
 
     def run_on_start():
         dbconnector.scheduleDB.connect_to_database()
@@ -158,6 +160,7 @@ def view_table():
 def rowEdit():
     tableName = request.args.get('tableName')
     editID = request.args.get('editID')
+    preFilled = request.args.get()
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
     columnNames = tableMetadataObject.get_fields()

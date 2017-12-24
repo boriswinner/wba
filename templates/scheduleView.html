@@ -18,6 +18,23 @@
             });
         });
     </script>
+<script>
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    //ev.target.appendChild(document.getElementById(data));
+    href = Flask.url_for('rowEdit', {editID: data, tableName: "{{ tableName }}"});
+    window.open(href,"_self");
+}
+</script>
 {% endblock %}
 
 {% block content %}
@@ -69,10 +86,12 @@
         <tr>
             <th>{{ xName }}<br>-----<br>{{ yName }}</th>
             {% set iterated = [0] %}
+            {% set yNames = [] %}
             {% for key, value in tableData.items() if iterated[0] < 1 %}
                 {% if iterated.append(iterated.pop() + 1) %}{% endif %}
                 {% for key1, value1 in value.items() %}
                     <th>{{ key1 }}</th>
+                    {% if yNames.append(key1) %}{% endif %}
                 {% endfor %}
             {% endfor %}
         </tr>
@@ -80,6 +99,7 @@
         {% for key, value in tableData.items() %}
             <tr>
                 <td>{{ key }}</td>
+                {% set yCntr = [0] %}
                 {% for key1, value1 in value.items() %}
                     <td>
                         <div id = "wrap">
@@ -97,7 +117,7 @@
                                     <tbody>
                                     <tr>
                                         {% for i in value1%}
-                                            <tr>
+                                            <tr draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)" id ="{{ i[i|length-1] }}" data-yName = "{{ yNames[yCntr[0]] }}" data-xName = "{{ key }}">
                                                 {% for j in range(i|length-1) %}
                                                     {% if j in visibleColumnNumbers %}<td>{{ i[j] }}</td>{% endif %}
                                                 {% endfor %}
@@ -113,6 +133,7 @@
                             {% endif %}
                         </div>
                     </td>
+                    {% if yCntr.append(yCntr.pop() + 1) %}{% endif %}
                 {% endfor %}
             </tr>
         {% endfor %}
