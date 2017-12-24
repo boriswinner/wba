@@ -242,6 +242,11 @@ def viewSchedule():
     else:
         yOrderID = [i.name for i in sc.tableMetadataDict.values()].index(yOrderName)
 
+    for i in tableData:
+        for j in range(len(i)):
+            if sc.tableMetadataDict[sc.columnNames[j]].type == 'key':
+                i.append(i[j])
+
     xName = sc.tableMetadataDict[sc.columnNames[xOrderID]].name
     yName = sc.tableMetadataDict[sc.columnNames[yOrderID]].name
     t1, t2 = sc.columnNames[xOrderID], sc.columnNames[yOrderID]

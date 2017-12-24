@@ -98,15 +98,11 @@
                                     <tr>
                                         {% for i in value1%}
                                             <tr>
-                                                {% set id = [0] %}
-                                                {% for j in range(i|length) %}
+                                                {% for j in range(i|length-1) %}
                                                     {% if j in visibleColumnNumbers %}<td>{{ i[j] }}</td>{% endif %}
-                                                    {% if (meta[columnNames[j]].type == 'key') %}
-                                                        {% if id.append(id.pop() + i[j]) %}{% endif %}
-                                                    {% endif %}
                                                 {% endfor %}
-                                                <td><a href ="{{ url_for('rowEdit', editID=id[0], tableName = tableName) }}">Edit</a></td>
-                                                <td><a href ="{{ url_for('view_table',deleteID=id[0], tablesPicker=tableName) }}">Delete</a></td>
+                                                <td><a href ="{{ url_for('rowEdit', editID=i[i|length-1], tableName = tableName) }}">Edit</a></td>
+                                                <td><a href ="{{ url_for('view_table',deleteID=i[i|length-1], tablesPicker=tableName) }}">Delete</a></td>
                                             </tr>
                                         {% endfor %}
                                     </tr>
