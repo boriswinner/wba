@@ -30,8 +30,10 @@ function drag(ev) {
 function drop(ev) {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
+    console.log(ev.target);
     //ev.target.appendChild(document.getElementById(data));
-    href = Flask.url_for('rowEdit', {editID: data, tableName: "{{ tableName }}"});
+    href = Flask.url_for('rowEdit', {editID: data, tableName: "{{ tableName }}",
+        xColumnValue: ev.target.getAttribute("data-xName"),yColumnValue: ev.target.getAttribute("data-yName"),xColumnName: "{{ xColumnName }}", yColumnName: "{{ yColumnName }}"});
     window.open(href,"_self");
 }
 </script>
@@ -119,7 +121,7 @@ function drop(ev) {
                                         {% for i in value1%}
                                             <tr draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)" id ="{{ i[i|length-1] }}" data-yName = "{{ yNames[yCntr[0]] }}" data-xName = "{{ key }}">
                                                 {% for j in range(i|length-1) %}
-                                                    {% if j in visibleColumnNumbers %}<td>{{ i[j] }}</td>{% endif %}
+                                                    {% if j in visibleColumnNumbers %}<td data-yName = "{{ yNames[yCntr[0]] }}" data-xName = "{{ key }}">{{ i[j] }}</td>{% endif %}
                                                 {% endfor %}
                                                 <td><a href ="{{ url_for('rowEdit', editID=i[i|length-1], tableName = tableName) }}">Edit</a></td>
                                                 <td><a href ="{{ url_for('view_table',deleteID=i[i|length-1], tablesPicker=tableName) }}">Delete</a></td>

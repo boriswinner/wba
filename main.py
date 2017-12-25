@@ -160,7 +160,7 @@ def view_table():
 def rowEdit():
     tableName = request.args.get('tableName')
     editID = request.args.get('editID')
-    preFilled = request.args.get()
+
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
     columnNames = tableMetadataObject.get_fields()
@@ -169,6 +169,12 @@ def rowEdit():
     query.setSelect()
     query.search('ID',editID,'=','where')
     editRow = list(globalvars.cur.execute(query.query,query.args).fetchall()[0])
+
+    if 'xColumnValue' in request.args.keys():
+        xColumnValue = request.args.get('xColumnValue')
+        yColumnValue = request.args.get('yColumnValue')
+        for i in editRow:
+            pass
 
     fullColumnNames = columnNames.copy()
     for i in range(len(fullColumnNames)):
@@ -245,6 +251,7 @@ def viewSchedule():
     else:
         yOrderID = [i.name for i in sc.tableMetadataDict.values()].index(yOrderName)
 
+
     for i in tableData:
         for j in range(len(i)):
             if sc.tableMetadataDict[sc.columnNames[j]].type == 'key':
@@ -252,6 +259,8 @@ def viewSchedule():
 
     xName = sc.tableMetadataDict[sc.columnNames[xOrderID]].name
     yName = sc.tableMetadataDict[sc.columnNames[yOrderID]].name
+    xColumnName = sc.columnNames[xOrderID]
+    yColumnName = sc.columnNames[yOrderID]
     t1, t2 = sc.columnNames[xOrderID], sc.columnNames[yOrderID]
     sc.columnNames.remove(t1)
     if (t1 != t2): sc.columnNames.remove(t2)
@@ -279,7 +288,7 @@ def viewSchedule():
         else:
             scheduleTable[i[yOrderID]][i[xOrderID]].append(t)
     return render_template('scheduleView.html', tableData=scheduleTable, meta=sc.tableMetadataDict,
-                           columnNames=sc.columnNames, xName=xName, yName=yName,
+                           columnNames=sc.columnNames, xName=xName, yName=yName, xColumnName=xColumnName, yColumnName=yColumnName,
                            pickerElements=[i.name for i in sc.tableMetadataDict.values()], hideHeaders=hideHeaders, hideCells = hideCells,
                            columnPickerElements=sc.selectQuery.currentColumns, selectedColumns=sc.searchColumn,
                            selectedConditions=sc.conditions, selectedLogicalConnections=sc.logicalConnections,
