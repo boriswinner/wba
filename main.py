@@ -164,6 +164,7 @@ def rowEdit():
     tableMetadataObject = getattr(metadata, tableName.lower())
     tableMetadataDict = tableMetadataObject.get_meta()
     columnNames = tableMetadataObject.get_fields()
+    columnMetaNames = [tableMetadataDict[i].name for i in columnNames]
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setSelect()
@@ -181,8 +182,9 @@ def rowEdit():
         if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
             editRow.pop(i)
             columnNames.pop(i)
+            columnMetaNames.pop(i)
 
-    return render_template('rowEdit.html', columnNames=columnNames, columns=editRow, rowID=editID, tableName=tableName)
+    return render_template('rowEdit.html', columnNames=columnNames, columnMetaNames = columnMetaNames, columns=editRow, rowID=editID, tableName=tableName)
 
 
 @app.route("/editInTable", methods=['GET', 'POST'])

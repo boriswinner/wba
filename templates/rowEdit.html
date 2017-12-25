@@ -2,8 +2,8 @@
 
 {% block content %}
     <form id="editForm" class="form-inline" method="GET" action="{{ url_for('editInTable') }}">
-    {% for i in range(columnNames|length) %}
-        {{ columnNames[i] }}
+    {% for i in range(columnMetaNames|length) %}
+        {{ columnMetaNames[i] }}
         <input name="{{ editInputName }}" id= "{{ editInputName }}" value = {{ columns[i] }} />
         <br>
     {% endfor %}
