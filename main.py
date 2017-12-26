@@ -169,7 +169,13 @@ def rowEdit():
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setSelect()
     query.search('ID',editID,'=','where')
+    for i in columnNames:
+        if tableMetadataDict[i].type == 'ref':
+            query.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
+                                          tableMetadataDict[i].refName)
+    return (str(query.query))
     editRow = list(globalvars.cur.execute(query.query,query.args).fetchall()[0])
+    #return (str(editRow))
 
     if 'xColumnValue' in request.args.keys():
         xColumnValue = request.args.get('xColumnValue')
