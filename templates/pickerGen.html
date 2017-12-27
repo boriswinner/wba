@@ -1,7 +1,8 @@
 <select name='{{ pickerName }}' id = '{{pickerName}}' class='selectpicker form-control' {% if onChangeFunc is defined %}
         onchange="{{ onChangeFunc }}"  {% endif %} {% if multiple is defined %} multiple {% endif %}>
-    {% for i in pickerElements %}
-        <option {% if i|string() == selectedName|string() %} selected="selected" {% endif %}
-                                                             value='{{ i }}'>{{ i }}</option>
+    {% for i in range(pickerElements|length) %}
+        <option {% if values is not defined and (pickerElements[i]|string() == selectedName|string()) %} selected="selected" {% endif %}
+        {% if values is defined and values[i] == selectedName %} selected="selected" {% endif %}
+                                                             value='{% if values is defined %}{{ values[i] }}{% else %}{{ pickerElements[i] }}{% endif %}'>{{ pickerElements[i] }}</option>
     {% endfor %}
 </select>

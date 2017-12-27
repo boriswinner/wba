@@ -202,13 +202,29 @@ def rowEdit():
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setSelect()
+    queries = []
+    qieriesIDS = []
     for i in columnNames:
         if tableMetadataDict[i].type == 'ref':
-            query.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
-                               tableMetadataDict[i].refName)
+            #query.replaceField(tableMetadataDict[i].refTable, i, tableMetadataDict[i].refKey,
+            #                   tableMetadataDict[i].refName)
+            tmd = getattr(metadata, tableMetadataDict[i].refTable.lower())
+            tq = "SELECT %s from %s" % (tableMetadataDict[i].refName,tableMetadataDict[i].refTable)
+            tr = globalvars.cur.execute(tq).fetchall()
+            tr = [i[0] for i in tr]
+            queries.append(tr)
+            tq = "SELECT %s from %s" % (tableMetadataDict[i].refKey, tableMetadataDict[i].refTable)
+            tr = globalvars.cur.execute(tq).fetchall()
+            tr = [i[0] for i in tr]
+            qieriesIDS.append(tr)
     query.search(tableName+'.ID', editID, '=', 'where')
-    #return (str(query.query))
     editRow = list(globalvars.cur.execute(query.query,query.args).fetchall()[0])
+    selectedVals = editRow.copy()
+    cnt = 0
+    for i in range(len(columnNames)):
+        if tableMetadataDict[columnNames[i]].type == 'ref':
+            editRow[i] = queries[cnt]
+            cnt += 1
 
     if 'xColumnValue' in request.args.keys():
         xColumnValue = request.args.get('xColumnValue')
@@ -222,8 +238,9 @@ def rowEdit():
             editRow.pop(i)
             columnNames.pop(i)
             columnMetaNames.pop(i)
+            selectedVals.pop(i)
 
-    return render_template('rowEdit.html', columnNames=columnNames, columnMetaNames = columnMetaNames, columns=editRow, rowID=editID, tableName=tableName)
+    return render_template('rowEdit.html', columnNames=columnNames, columnMetaNames = columnMetaNames, columns=editRow, rowID=editID, tableName=tableName, qieriesIDS = qieriesIDS,selectedVals=selectedVals)
 
 
 @app.route("/editInTable", methods=['GET', 'POST'])
