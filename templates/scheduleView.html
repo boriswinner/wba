@@ -119,9 +119,9 @@ function drop(ev) {
                                     <tbody>
                                     <tr>
                                         {% for i in value1%}
-                                            <tr draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)" id ="{{ i[i|length-1] }}" data-yName = "{{ yNames[yCntr[0]] }}" data-xName = "{{ key }}">
+                                            <tr draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)" id ="{{ i[i|length-1] }}" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]] }}">
                                                 {% for j in range(i|length-1) %}
-                                                    {% if j in visibleColumnNumbers %}<td data-yName = "{{ yNames[yCntr[0]] }}" data-xName = "{{ key }}">{{ i[j] }}</td>{% endif %}
+                                                    {% if j in visibleColumnNumbers %}<td data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]] }}">{{ i[j] }}</td>{% endif %}
                                                 {% endfor %}
                                                 <td><a href ="{{ url_for('rowEdit', editID=i[i|length-1], tableName = tableName) }}">Edit</a></td>
                                                 <td><a href ="{{ url_for('view_table',deleteID=i[i|length-1], tablesPicker=tableName) }}">Delete</a></td>
