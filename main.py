@@ -206,7 +206,6 @@ def rowEdit():
     qieriesIDS = []
     for i in columnNames:
         if tableMetadataDict[i].type == 'ref':
-            tmd = getattr(metadata, tableMetadataDict[i].refTable.lower())
             tq = "SELECT %s from %s" % (tableMetadataDict[i].refName,tableMetadataDict[i].refTable)
             tr = globalvars.cur.execute(tq).fetchall()
             tr = [i[0] for i in tr]

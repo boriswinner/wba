@@ -2,20 +2,22 @@
 
 {% block content %}
     <form id="editForm" class="form-inline" method="GET" action="{{ url_for('editInTable') }}">
-    {% for i in range(columnMetaNames|length) %}
-        {{ columnMetaNames[i] }}
-        {% if columns[i]|length > 1 and columns|length > 1%}
-            {% with pickerName = editInputName, pickerElements = columns[i], selectedName = selectedVals[i],values = qieriesIDS[i] %}
-                {% include 'pickerGen.html' %}
-            {% endwith %}
-        {% else %}
-            <input name="{{ editInputName }}" id= "{{ editInputName }}" value = "{{ columns[i] }}" />
-        {% endif %}
-        <br>
-    {% endfor %}
-    <input name="columns" id= "columns" type = "hidden" value = "{{ oldRowData }}" />
-    <input name="rowID" id= "rowID" type = "hidden" value = "{{ rowID }}" />
-    <input name="tableName" id= "tableName" type = "hidden" value = "{{ tableName }}" />
-    <button type="submit" class="btn btn-default">Apply changes</button>
+        {% for i in range(columnMetaNames|length) %}
+            <div class="row">
+                <div class="col-sm-2">{{ columnMetaNames[i] }}</div>
+                <div class="col-sm-2">{% if columns[i]|length > 1 and columns|length > 1%}
+                {% with pickerName = editInputName, pickerElements = columns[i], selectedName = selectedVals[i],values = qieriesIDS[i] %}
+                    {% include 'pickerGen.html' %}
+                {% endwith %}
+            {% else %}
+                <input name="{{ editInputName }}" id= "{{ editInputName }}" value = "{{ columns[i] }}" />
+            {% endif %}</div>
+            </div>
+            <br>
+        {% endfor %}
+        <input name="columns" id= "columns" type = "hidden" value = "{{ oldRowData }}" />
+        <input name="rowID" id= "rowID" type = "hidden" value = "{{ rowID }}" />
+        <input name="tableName" id= "tableName" type = "hidden" value = "{{ tableName }}" />
+        <button type="submit" class="btn btn-default">Apply changes</button>
     </form>
 {% endblock %}
