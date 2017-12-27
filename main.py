@@ -148,7 +148,7 @@ class dataWorker():
 
     def formInsertQuery(self):
         addedValues = request.args.getlist(constants.addIntoTableInputsName)
-        if (len(addedValues) > 0 and len(addedValues[0]) > 0):
+        if len(addedValues) > 0 and len(addedValues[0]) > 0:
             self.insertQuery = queryconstructor.ConstructQuery(self.tableMetadataObject)
             self.insertQuery.setInsert(addedValues)
             return True
@@ -192,6 +192,7 @@ def view_table():
 
 @app.route("/rowEdit", methods=['GET', 'POST'])
 def rowEdit():
+
     tableName = request.args.get('tableName')
     editID = request.args.get('editID')
 
@@ -245,31 +246,31 @@ def rowEdit():
 
 @app.route("/editInTable", methods=['GET', 'POST'])
 def editInTable():
-    tableName = request.args.get('tableName')
-    tableMetadataObject = getattr(metadata, tableName.lower())
-    tableMetadataDict = tableMetadataObject.get_meta()
-    fullColumnNames = tableMetadataObject.get_fields()
+    dw = dataWorker()
+    dw.tableName = request.args.get('tableName')
+    dw.init()
+    dw.fullColumnNames = dw.tableMetadataObject.get_fields()
     newColumns = request.args.getlist(constants.editInputName)
 
     columnsDataBeforeEdit = request.args.getlist('columns')[0]
     columnsDataBeforeEdit = columnsDataBeforeEdit.replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '|').split('|')
     rowID = request.args.get('rowID')
-    columnNames = fullColumnNames.copy()
-    for i in range(len(fullColumnNames)):
-        if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
+    columnNames = dw.fullColumnNames.copy()
+    for i in range(len(dw.fullColumnNames)):
+        if (dw.tableMetadataDict[dw.fullColumnNames[i]].type == 'key'):
             columnNames.pop(i)
 
 
-    columnsDataNow = list(globalvars.cur.execute("SELECT * FROM %s WHERE ID = (?)" % tableName, [rowID]).fetchall()[0])
+    columnsDataNow = list(globalvars.cur.execute("SELECT * FROM %s WHERE ID = (?)" % dw.tableName, [rowID]).fetchall()[0])
     for i in range(len(columnsDataNow)):
-        if (tableMetadataDict[fullColumnNames[i]].type == 'key'):
+        if (dw.tableMetadataDict[dw.fullColumnNames[i]].type == 'key'):
             columnsDataNow.pop(i)
 
     for i in range(len(columnsDataNow)):
         if (str(columnsDataNow[i]).strip() != str(columnsDataBeforeEdit[i]).strip()):
             return render_template('updateResult.html', mode='outdated')
 
-    query = queryconstructor.ConstructQuery(tableMetadataObject)
+    query = queryconstructor.ConstructQuery(dw.tableMetadataObject)
     query.setUpdate(newColumns, columnNames, rowID)
     try:
         globalvars.cur.execute(query.query, query.args)
