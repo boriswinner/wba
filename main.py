@@ -151,7 +151,6 @@ class dataWorker():
 
     def formInsertQuery(self):
         addedValues = request.args.getlist(constants.addIntoTableInputsName)
-        print (str(addedValues)+'11111111111111111')
         if len(addedValues) > 0 and len(addedValues[0]) > 0:
             self.insertQuery = queryconstructor.ConstructQuery(self.tableMetadataObject)
             self.insertQuery.setInsert(addedValues)
@@ -297,7 +296,11 @@ def viewSchedule():
     dw = dataWorker()
     dw.getDataForViewSchedule()
     dw.formSelectQuery()
-
+    xName = dw.tableMetadataDict[dw.columnNames[dw.xOrderID]].name
+    yName = dw.tableMetadataDict[dw.columnNames[dw.yOrderID]].name
+    xColumnName = dw.columnNames[dw.xOrderID]
+    yColumnName = dw.columnNames[dw.yOrderID]
+    dw.selectQuery.order(yColumnName)
     globalvars.cur.execute(dw.selectQuery.query, dw.selectQuery.args)
     tableData = globalvars.cur.fetchall()
     tableData = [list(i) for i in tableData]
@@ -307,10 +310,6 @@ def viewSchedule():
             if dw.tableMetadataDict[dw.columnNames[j]].type == 'key':
                 i.append(i[j])
 
-    xName = dw.tableMetadataDict[dw.columnNames[dw.xOrderID]].name
-    yName = dw.tableMetadataDict[dw.columnNames[dw.yOrderID]].name
-    xColumnName = dw.columnNames[dw.xOrderID]
-    yColumnName = dw.columnNames[dw.yOrderID]
     t1, t2 = dw.columnNames[dw.xOrderID], dw.columnNames[dw.yOrderID]
     dw.columnNames.remove(t1)
     if (t1 != t2): dw.columnNames.remove(t2)

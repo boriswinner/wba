@@ -31,7 +31,7 @@
             ev.preventDefault();
             var data = ev.dataTransfer.getData("text");
             href = Flask.url_for('rowEdit', {editID: data, tableName: "{{ tableName }}",
-                xColumnValue: ev.target.getAttribute("data-xName"),yColumnValue: ev.target.getAttribute("data-yName"),xColumnName: "{{ xColumnName }}", dNg:"1", returnURL: "{{ request.url }}", yColumnName: "{{ yColumnName }}"});
+                xColumnValue: ev.target.getAttribute("data-xName"),yColumnValue: ev.target.getAttribute("data-yName"),xColumnName: "{{ xColumnName }}", dNg:"1", yColumnName: "{{ yColumnName }}",returnURL: "{{ request.url }}"});
             window.open(href,"_self");
         }
     </script>
