@@ -120,7 +120,7 @@
                                                 {% for j in range(i|length-1) %}
                                                     {% if j in visibleColumnNumbers %}<td data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]] }}">{{ i[j] }}</td>{% endif %}
                                                 {% endfor %}
-                                                <td><a href ="{{ url_for('rowEdit', editID=i[i|length-1], tableName = tableName) }}">Edit</a></td>
+                                                <td><a href ="{{ url_for('rowEdit', editID=i[i|length-1], returnURL=request.url, tableName = tableName) }}">Edit</a></td>
                                                 <td><a href ="{{ url_for('view_table',deleteID=i[i|length-1], tablesPicker=tableName) }}">Delete</a></td>
                                             </tr>
                                         {% endfor %}

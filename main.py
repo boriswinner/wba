@@ -287,7 +287,7 @@ def editInTable():
     except:
         return render_template('updateResult.html', mode='incorrect')
     returnURL = request.args.get('returnURL')
-    if (returnURL is not None):
+    if (returnURL is not None and returnURL != 'None'):
         return redirect(returnURL)
     return redirect(url_for('view_table',tablesPicker=dw.tableName))
 
