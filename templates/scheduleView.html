@@ -30,17 +30,14 @@
         function drop(ev) {
             ev.preventDefault();
             var data = ev.dataTransfer.getData("text");
-            console.log(ev.target);
-            //ev.target.appendChild(document.getElementById(data));
             href = Flask.url_for('rowEdit', {editID: data, tableName: "{{ tableName }}",
-                xColumnValue: ev.target.getAttribute("data-xName"),yColumnValue: ev.target.getAttribute("data-yName"),xColumnName: "{{ xColumnName }}", yColumnName: "{{ yColumnName }}"});
+                xColumnValue: ev.target.getAttribute("data-xName"),yColumnValue: ev.target.getAttribute("data-yName"),xColumnName: "{{ xColumnName }}", dNg:"1", returnURL: "{{ request.url }}", yColumnName: "{{ yColumnName }}"});
             window.open(href,"_self");
         }
     </script>
 {% endblock %}
 
 {% block content %}
-
     <form id="filtersForm" class="form-inline" method="GET">
         Choose the x-coordinate grouping:
         {% with pickerName = xGroupingPickerName, pickerElements = pickerElements, selectedName = xName, onChangeFunc='highlight(this)' %}

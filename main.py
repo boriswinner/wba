@@ -117,11 +117,14 @@ class dataWorker():
 
         if constants.xGroupingPickerName in request.args:
             xOrderName = request.args.get(constants.xGroupingPickerName)
-            yOrderName = request.args.get(constants.yGroupingPickerName)
             self.xOrderID = [i.name for i in self.tableMetadataDict.values()].index(xOrderName)
-            self.yOrderID = [i.name for i in self.tableMetadataDict.values()].index(yOrderName)
         else:
             self.xOrderID = constants.defaultXOrderID
+
+        if constants.yGroupingPickerName in request.args:
+            yOrderName = request.args.get(constants.yGroupingPickerName)
+            self.yOrderID = [i.name for i in self.tableMetadataDict.values()].index(yOrderName)
+        else:
             self.yOrderID = constants.defaultYOrderID
 
     def getDataForViewTable(self):
@@ -202,6 +205,8 @@ def rowEdit():
     columnNames = tableMetadataObject.get_fields()
     columnMetaNames = [tableMetadataDict[i].name for i in columnNames]
     addVals = request.args.get('addVals')
+    dNg = request.args.get('dNg')
+    returnURL = request.args.get('returnURL')
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setSelect()
@@ -243,7 +248,7 @@ def rowEdit():
         selectedVals[columnNames.index(xColumnName)] = queries[columnNames.index(xColumnName)].index(xColumnValue) + 1
         selectedVals[columnNames.index(yColumnName)] = queries[columnNames.index(yColumnName)].index(yColumnValue) + 1
 
-    return render_template('rowEdit.html', columnNames=columnNames, columnMetaNames = columnMetaNames, columns=editRow, rowID=editID, tableName=tableName, qieriesIDS = qieriesIDS,selectedVals=selectedVals, oldRowData = oldRowData,addVals=addVals)
+    return render_template('rowEdit.html', columnNames=columnNames, columnMetaNames = columnMetaNames, columns=editRow, rowID=editID, tableName=tableName, qieriesIDS = qieriesIDS,selectedVals=selectedVals, oldRowData = oldRowData,addVals=addVals,dNg=dNg,returnURL=returnURL)
 
 
 @app.route("/editInTable", methods=['GET', 'POST'])
@@ -281,6 +286,9 @@ def editInTable():
         globalvars.cur.execute(query.query, query.args)
     except:
         return render_template('updateResult.html', mode='incorrect')
+    returnURL = request.args.get('returnURL')
+    if (returnURL is not None):
+        return redirect(returnURL)
     return redirect(url_for('view_table',tablesPicker=dw.tableName))
 
 
