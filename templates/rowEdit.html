@@ -3,16 +3,32 @@
 {% block content %}
     <form id="editForm" class="form-inline" method="GET" action="{{ url_for('editInTable') }}">
         {% for i in range(columnMetaNames|length) %}
-            <div class="row">
-                <div class="col-sm-2">{{ columnMetaNames[i] }}</div>
-                <div class="col-sm-2">{% if columns[i]|length > 1 and columns|length > 1%}
-                {% with pickerName = editInputName, pickerElements = columns[i], selectedName = selectedVals[i],values = qieriesIDS[i] %}
-                    {% include 'pickerGen.html' %}
-                {% endwith %}
+            {% if addVals is defined and addVals == "1" %}
+                <div class="row">
+                    <div class="col-sm-2">{{ columnMetaNames[i] }}</div>
+                    <div class="col-sm-2">
+                        {% if columns[i]|length > 1 and columns|length > 1%}
+                            {% with pickerName = addIntoTableInputsName, pickerElements = columns[i], selectedName = selectedVals[i],values = qieriesIDS[i] %}
+                                {% include 'pickerGen.html' %}
+                            {% endwith %}
+                        {% else %}
+                            <input name="{{ addIntoTableInputsName }}" id= "{{ addIntoTableInputsName }}" value = "{{ columns[i] }}" />
+                        {% endif %}</div>
+                </div>
             {% else %}
-                <input name="{{ editInputName }}" id= "{{ editInputName }}" value = "{{ columns[i] }}" />
-            {% endif %}</div>
-            </div>
+                <div class="row">
+                    <div class="col-sm-2">{{ columnMetaNames[i] }}</div>
+                    <div class="col-sm-2">
+                        {% if columns[i]|length > 1 and columns|length > 1%}
+                            {% with pickerName = editInputName, pickerElements = columns[i], selectedName = selectedVals[i],values = qieriesIDS[i] %}
+                                {% include 'pickerGen.html' %}
+                            {% endwith %}
+                        {% else %}
+                            <input name="{{ editInputName }}" id= "{{ editInputName }}" value = "{{ columns[i] }}" />
+                        {% endif %}</div>
+                </div>
+            {% endif %}
+
             <br>
         {% endfor %}
         <input name="columns" id= "columns" type = "hidden" value = "{{ oldRowData }}" />

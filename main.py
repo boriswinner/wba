@@ -1,7 +1,7 @@
 import metadata
 import queryconstructor
 import dbconnector
-from flask import Flask, url_for, render_template, request
+from flask import Flask, url_for, render_template, request, redirect
 from flask_jsglue import JSGlue
 
 
@@ -148,6 +148,7 @@ class dataWorker():
 
     def formInsertQuery(self):
         addedValues = request.args.getlist(constants.addIntoTableInputsName)
+        print (str(addedValues)+'11111111111111111')
         if len(addedValues) > 0 and len(addedValues[0]) > 0:
             self.insertQuery = queryconstructor.ConstructQuery(self.tableMetadataObject)
             self.insertQuery.setInsert(addedValues)
@@ -200,6 +201,7 @@ def rowEdit():
     tableMetadataDict = tableMetadataObject.get_meta()
     columnNames = tableMetadataObject.get_fields()
     columnMetaNames = [tableMetadataDict[i].name for i in columnNames]
+    addVals = request.args.get('addVals')
 
     query = queryconstructor.ConstructQuery(tableMetadataObject)
     query.setSelect()
@@ -241,7 +243,7 @@ def rowEdit():
         selectedVals[columnNames.index(xColumnName)] = queries[columnNames.index(xColumnName)].index(xColumnValue) + 1
         selectedVals[columnNames.index(yColumnName)] = queries[columnNames.index(yColumnName)].index(yColumnValue) + 1
 
-    return render_template('rowEdit.html', columnNames=columnNames, columnMetaNames = columnMetaNames, columns=editRow, rowID=editID, tableName=tableName, qieriesIDS = qieriesIDS,selectedVals=selectedVals, oldRowData = oldRowData)
+    return render_template('rowEdit.html', columnNames=columnNames, columnMetaNames = columnMetaNames, columns=editRow, rowID=editID, tableName=tableName, qieriesIDS = qieriesIDS,selectedVals=selectedVals, oldRowData = oldRowData,addVals=addVals)
 
 
 @app.route("/editInTable", methods=['GET', 'POST'])
@@ -251,6 +253,9 @@ def editInTable():
     dw.init()
     dw.fullColumnNames = dw.tableMetadataObject.get_fields()
     newColumns = request.args.getlist(constants.editInputName)
+    if (dw.formInsertQuery()):
+        globalvars.cur.execute(dw.insertQuery.query, dw.insertQuery.args)
+        return redirect(url_for('view_table', tablesPicker=dw.tableName))
 
     columnsDataBeforeEdit = request.args.getlist('columns')[0]
     columnsDataBeforeEdit = columnsDataBeforeEdit.replace('[', '').replace(']', '').replace("'", '').replace("\"", '').replace(",", '|').split('|')
@@ -276,7 +281,7 @@ def editInTable():
         globalvars.cur.execute(query.query, query.args)
     except:
         return render_template('updateResult.html', mode='incorrect')
-    return render_template('updateResult.html', mode='success')
+    return redirect(url_for('view_table',tablesPicker=dw.tableName))
 
 
 @app.route("/schedule", methods=['GET', 'POST'])
