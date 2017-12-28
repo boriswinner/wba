@@ -18,25 +18,25 @@
             });
         });
     </script>
-<script>
-function allowDrop(ev) {
-    ev.preventDefault();
-}
+    <script>
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
 
-function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.id);
-}
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
 
-function drop(ev) {
-    ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
-    console.log(ev.target);
-    //ev.target.appendChild(document.getElementById(data));
-    href = Flask.url_for('rowEdit', {editID: data, tableName: "{{ tableName }}",
-        xColumnValue: ev.target.getAttribute("data-xName"),yColumnValue: ev.target.getAttribute("data-yName"),xColumnName: "{{ xColumnName }}", yColumnName: "{{ yColumnName }}"});
-    window.open(href,"_self");
-}
-</script>
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            console.log(ev.target);
+            //ev.target.appendChild(document.getElementById(data));
+            href = Flask.url_for('rowEdit', {editID: data, tableName: "{{ tableName }}",
+                xColumnValue: ev.target.getAttribute("data-xName"),yColumnValue: ev.target.getAttribute("data-yName"),xColumnName: "{{ xColumnName }}", yColumnName: "{{ yColumnName }}"});
+            window.open(href,"_self");
+        }
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -105,19 +105,19 @@ function drop(ev) {
                 {% for key1, value1 in value.items() %}
                     <td>
                         <div id = "wrap">
-                            {% if value1 is not none %}
-                                <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide {% if hideCells %}hided{% endif %} table table-bordered">
-                                    {% if not hideHeaders%}
-                                        <thead>
-                                        <tr>
-                                            {% for i in visibleColumnNames %}
-                                                <th>{{ meta[i].name }}</th>
-                                            {% endfor %}
-                                        </tr>
-                                        </thead>
-                                    {% endif %}
-                                    <tbody>
+                            <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide {% if hideCells %}hided{% endif %} table table-bordered">
+                                {% if not hideHeaders and value1 is not none%}
+                                    <thead>
                                     <tr>
+                                        {% for i in visibleColumnNames %}
+                                            <th>{{ meta[i].name }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
+                                {% endif %}
+                                <tbody>
+                                <tr>
+                                    {% if value1 is not none %}
                                         {% for i in value1%}
                                             <tr draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)" id ="{{ i[i|length-1] }}" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]] }}">
                                                 {% for j in range(i|length-1) %}
@@ -127,12 +127,17 @@ function drop(ev) {
                                                 <td><a href ="{{ url_for('view_table',deleteID=i[i|length-1], tablesPicker=tableName) }}">Delete</a></td>
                                             </tr>
                                         {% endfor %}
-                                    </tr>
-                                    </tbody>
-                                </table>
-                                <a href="#" class="showhide" name="cell{{ cnt[0] }}">{% if hideCells %}Show{% else %}Hide{% endif %}</a>
-                                {% if cnt.append(cnt.pop() + 1) %}{% endif %}
-                            {% endif %}
+                                    {% else %}
+                                        <tr >
+                                            <td draggable="true" ondrop="drop(event)" ondragover="allowDrop(event)" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]]}}" id = "emptyDrop"> </td></tr>
+                                    {% endif %}
+                                </tr>
+                                </tbody>
+                            </table>
+                        {% if value1 is not none %}
+                            <a href="#" class="showhide" name="cell{{ cnt[0] }}">{% if hideCells %}Show{% else %}Hide{% endif %}</a>
+                        {% endif %}
+                            {% if cnt.append(cnt.pop() + 1) %}{% endif %}
                         </div>
                     </td>
                     {% if yCntr.append(yCntr.pop() + 1) %}{% endif %}
