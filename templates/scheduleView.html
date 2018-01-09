@@ -82,6 +82,7 @@
         <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
     </form>
     <table class="table table-bordered">
+    {% set cellsCntr = [0] %}
         <tr>
             <th>{{ xName }}<br>-----<br>{{ yName }}</th>
             {% set iterated = [0] %}
@@ -97,10 +98,11 @@
         {% set cnt = [0] %}
         {% for key, value in tableData.items() %}
             <tr>
-                <td>{{ key }}</td>
+                <td>{{ key }} {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}</td>
                 {% set yCntr = [0] %}
                 {% for key1, value1 in value.items() %}
                     <td>
+                        {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}
                         <div id = "wrap">
                             <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide {% if hideCells %}hided{% endif %} table table-bordered">
                                 {% if not hideHeaders and value1 is not none%}
@@ -120,13 +122,16 @@
                                                 {% for j in range(i|length-1) %}
                                                     {% if j in visibleColumnNumbers %}<td data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]] }}">{{ i[j] }}</td>{% endif %}
                                                 {% endfor %}
-                                                <td><a href ="{{ url_for('rowEdit', editID=i[i|length-1], returnURL=request.url, tableName = tableName) }}">Edit</a></td>
-                                                <td><a href ="{{ url_for('view_table',deleteID=i[i|length-1], tablesPicker=tableName) }}">Delete</a></td>
+                                                <td> {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}
+                                                    <a href ="{{ url_for('rowEdit', editID=i[i|length-1], returnURL=request.url, tableName = tableName) }}">Edit</a></td>
+                                                <td> {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}
+                                                    <a href ="{{ url_for('view_table',deleteID=i[i|length-1], tablesPicker=tableName) }}">Delete</a></td>
                                             </tr>
                                         {% endfor %}
                                     {% else %}
                                         <tr >
-                                            <td draggable="true" ondrop="drop(event)" ondragover="allowDrop(event)" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]]}}" id = "emptyDrop{{ yCntr[0] }}"> </td></tr>
+                                            <td draggable="true" ondrop="drop(event)" ondragover="allowDrop(event)" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]]}}" id = "emptyDrop{{ cellsCntr[0] }}"> </td></tr>
+                                         {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}
                                     {% endif %}
                                 </tr>
                                 </tbody>
