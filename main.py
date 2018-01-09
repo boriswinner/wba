@@ -3,6 +3,7 @@ import queryconstructor
 import dbconnector
 from flask import Flask, url_for, render_template, request, redirect
 from flask_jsglue import JSGlue
+from collections import OrderedDict
 
 
 class Constants:
@@ -304,6 +305,9 @@ def viewSchedule():
     globalvars.cur.execute(dw.selectQuery.query, dw.selectQuery.args)
     tableData = globalvars.cur.fetchall()
     tableData = [list(i) for i in tableData]
+    #print(tableData)
+    #tableData = sorted(tableData,key = lambda x:x[dw.xOrderID])
+    #print(tableData)
 
     for i in tableData:
         for j in range(len(i)):
@@ -314,9 +318,9 @@ def viewSchedule():
     dw.columnNames.remove(t1)
     if (t1 != t2): dw.columnNames.remove(t2)
 
-    scheduleTable = dict.fromkeys(i[dw.yOrderID] for i in tableData)
+    scheduleTable = OrderedDict.fromkeys(i[dw.yOrderID] for i in tableData)
     for key in scheduleTable:
-        scheduleTable[key] = dict.fromkeys([i[dw.xOrderID] for i in tableData])
+        scheduleTable[key] = dict.fromkeys([i[dw.xOrderID] for i in sorted(tableData,key = lambda x:x[dw.xOrderID])])
 
     visibleColumns = request.args.getlist(constants.visibleColumnsPickerName)
     if (visibleColumns is None) or (len(visibleColumns) == 0):
