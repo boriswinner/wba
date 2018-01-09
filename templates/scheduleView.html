@@ -101,7 +101,7 @@
                 <td>{{ key }} {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}</td>
                 {% set yCntr = [0] %}
                 {% for key1, value1 in value.items() %}
-                    <td>
+                    <td draggable="true" ondrop="drop(event)" ondragover="allowDrop(event)" id = "tdDrop{{ cellsCntr[0] }}" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]]}}">
                         {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}
                         <div id = "wrap">
                             <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide {% if hideCells %}hided{% endif %} table table-bordered">
