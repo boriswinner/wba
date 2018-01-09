@@ -126,7 +126,7 @@
                                         {% endfor %}
                                     {% else %}
                                         <tr >
-                                            <td draggable="true" ondrop="drop(event)" ondragover="allowDrop(event)" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]]}}" id = "emptyDrop"> </td></tr>
+                                            <td draggable="true" ondrop="drop(event)" ondragover="allowDrop(event)" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]]}}" id = "emptyDrop{{ yCntr[0] }}"> </td></tr>
                                     {% endif %}
                                 </tr>
                                 </tbody>
