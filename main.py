@@ -48,7 +48,7 @@ class GlobalVars:
     tableData = []
     tableDataWithoutRef = []
     cur = None
-
+    conflictsSearcher = None
 
 constants = Constants()
 globalvars = GlobalVars()
@@ -62,6 +62,7 @@ def create_app():
         dbconnector.scheduleDB.connect_to_database()
         dbconnector.scheduleDB.set_tables_list()
         globalvars.cur = dbconnector.scheduleDB.cur
+        globalvars.conflictsSearcher = conflicts.ConflictsSearcher(globalvars.cur)
 
     run_on_start()
     return app
@@ -179,8 +180,12 @@ def view_table():
     dw.formSelectQuery()
 
     try:
-        if (dw.formInsertQuery()): globalvars.cur.execute(dw.insertQuery.query, dw.insertQuery.args)
-        if (dw.formDeleteQuery()): globalvars.cur.execute(dw.deleteQuery.query, dw.deleteQuery.args)
+        if (dw.formInsertQuery()):
+            globalvars.cur.execute(dw.insertQuery.query, dw.insertQuery.args)
+            globalvars.conflictsSearcher.setOutdated()
+        if (dw.formDeleteQuery()):
+            globalvars.cur.execute(dw.deleteQuery.query, dw.deleteQuery.args)
+            globalvars.conflictsSearcher.setOutdated()
         globalvars.cur.execute(dw.selectQuery.query, dw.selectQuery.args)
         globalvars.tableData = globalvars.cur.fetchall()
         incorrectQuery = 0
@@ -273,6 +278,7 @@ def editInTable():
     newColumns = [i if i != 'None' else None for i in newColumns]
     if (dw.formInsertQuery()):
         globalvars.cur.execute(dw.insertQuery.query, dw.insertQuery.args)
+        globalvars.conflictsSearcher.setOutdated()
         return redirect(url_for('view_table', tablesPicker=dw.tableName))
 
     columnsDataBeforeEdit = request.args.getlist('columns')[0]
@@ -297,6 +303,7 @@ def editInTable():
     query.setUpdate(newColumns, columnNames, rowID)
     try:
         globalvars.cur.execute(query.query, query.args)
+        globalvars.conflictsSearcher.setOutdated()
     except:
         return render_template('updateResult.html', mode='incorrect')
     returnURL = request.args.get('returnURL')
@@ -370,10 +377,10 @@ def viewConflicts():
     queryPartsR = tQueryR.replace('from','SELECT').split("SELECT")
     tQueryL = dw.selectQuery.query.replace("Sched_Items","l")
     queryPartsL = tQueryL.replace('from','SELECT').split("SELECT")
-    conflictsSearcher = conflicts.ConflictsSearcher(globalvars.cur,queryPartsR[1],queryPartsR[2][2:],queryPartsL[1],queryPartsL[2][2:])
-    conflictsSearcher.findConflicts()
+    globalvars.conflictsSearcher.setSelectedColumns(queryPartsR[1],queryPartsR[2][2:],queryPartsL[1],queryPartsL[2][2:])
+    globalvars.conflictsSearcher.findConflicts()
 
-    return (render_template("conflictsView.html",conflictsByTypes = conflictsSearcher.conflictsByTypes, columnNames = dw.columnNames, meta=dw.tableMetadataDict, selectedPage = 0, selectedPagination = 100))
+    return (render_template("conflictsView.html",conflictsByTypes = globalvars.conflictsSearcher.conflictsByTypes, columnNames = dw.columnNames, meta=dw.tableMetadataDict, selectedPage = 0, selectedPagination = 100))
 
 if __name__ == "__main__":
     app.run(debug=True)
