@@ -249,8 +249,14 @@ def rowEdit():
         yColumnValue = request.args.get('yColumnValue')
         xColumnName = request.args.getlist('xColumnName')[0]
         yColumnName = request.args.getlist('yColumnName')[0]
-        selectedVals[columnNames.index(xColumnName)] = queries[columnNames.index(xColumnName)].index(xColumnValue) + 1
-        selectedVals[columnNames.index(yColumnName)] = queries[columnNames.index(yColumnName)].index(yColumnValue) + 1
+        if (xColumnValue != 'None'):
+            selectedVals[columnNames.index(xColumnName)] = queries[columnNames.index(xColumnName)].index(xColumnValue) + 1
+        else:
+            selectedVals[columnNames.index(xColumnName)] = None
+        if (yColumnValue != 'None'):
+            selectedVals[columnNames.index(yColumnName)] = queries[columnNames.index(yColumnName)].index(yColumnValue) + 1
+        else:
+            selectedVals[columnNames.index(yColumnName)] = None
 
     return render_template('rowEdit.html', columnNames=columnNames, columnMetaNames = columnMetaNames, columns=editRow, rowID=editID, tableName=tableName, qieriesIDS = qieriesIDS,selectedVals=selectedVals, oldRowData = oldRowData,addVals=addVals,dNg=dNg,returnURL=returnURL)
 
