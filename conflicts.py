@@ -5,6 +5,10 @@ sameGroupDifferentLessonQuery = """SELECT %s, %s FROM SCHED_ITEMS r CROSS JOIN S
 r.LESSON_ID = l.LESSON_ID AND r.SUBJECT_ID = l.SUBJECT_ID AND r.GROUP_ID = l.GROUP_ID AND r.WEEKDAY_ID = l.WEEKDAY_ID 
 AND (r.AUDIENCE_ID != l.AUDIENCE_ID OR r.TEACHER_ID != l.TEACHER_ID OR r.TYPE_ID != l.TYPE_ID) """
 
+differentGroupsSameLessonQuery = """SELECT %s, %s FROM SCHED_ITEMS r CROSS JOIN SCHED_ITEMS l %s %s WHERE 
+r.LESSON_ID = l.LESSON_ID AND r.GROUP_ID != l.GROUP_ID AND r.WEEKDAY_ID = l.WEEKDAY_ID 
+AND (r.AUDIENCE_ID = l.AUDIENCE_ID OR r.TEACHER_ID = l.TEACHER_ID) """
+
 class ConflictType():
     def __init__(self,query, name):
         self.query = query
@@ -25,7 +29,8 @@ class ConflictsSearcher():
         self.tablesToJoinL = tablesToJoinL
 
     conflictsByTypes = [
-        ConflictType(sameGroupDifferentLessonQuery,"The same group has different lessons simultaneously")
+        ConflictType(sameGroupDifferentLessonQuery,"The same group has different lessons simultaneously"),
+        ConflictType(differentGroupsSameLessonQuery,"Different groups have the same audience or teacher simultaneously")
     ]
 
     def findConflicts(self):
