@@ -373,11 +373,6 @@ def viewConflicts():
     conflictsSearcher = conflicts.ConflictsSearcher(globalvars.cur,queryPartsR[1],queryPartsR[2][2:],queryPartsL[1],queryPartsL[2][2:])
     conflictsSearcher.findConflicts()
 
-    for i in conflictsSearcher.conflictsByTypes:
-        for j in range(len(i.data)):
-            if dw.tableMetadataDict[dw.columnNames[j]].type == 'key':
-                i.data.append(i.data[j])
-
     return (render_template("conflictsView.html",conflictsByTypes = conflictsSearcher.conflictsByTypes))
 
 if __name__ == "__main__":
