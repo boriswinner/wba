@@ -1,0 +1,25 @@
+<table id="dataView" class="table table-striped table-condensed ">
+    <thead>
+    <tr class="header">
+        {% for i in columnNames %}
+            <th class="col-sm-1">{{ meta[i].name }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in range(tableData|length) %}
+        <tr>
+            {% set id = [0] %}
+            {% for j in range(columnNames|length) %}
+                <td
+                        {% if (i < tableData|length-1) and (tableData[i][j] != tableData[i + 1][j]) %}bgcolor = "#ffcce6"{% endif %}
+                        {% if (i == tableData|length-1) and (tableData[i][j] != tableData[i - 1][j]) %}bgcolor = "#ffcce6"{% endif %}
+                >{{ tableData[i][j] }}</td>
+                {% if (meta[columnNames[j]].type == 'key') %}
+                    {% if id.append(id.pop() + tableData[i][j]) %}{% endif %}
+                {% endif %}
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

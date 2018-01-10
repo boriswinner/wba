@@ -373,7 +373,7 @@ def viewConflicts():
     conflictsSearcher = conflicts.ConflictsSearcher(globalvars.cur,queryPartsR[1],queryPartsR[2][2:],queryPartsL[1],queryPartsL[2][2:])
     conflictsSearcher.findConflicts()
 
-    return (render_template("conflictsView.html",conflictsByTypes = conflictsSearcher.conflictsByTypes))
+    return (render_template("conflictsView.html",conflictsByTypes = conflictsSearcher.conflictsByTypes, columnNames = dw.columnNames, meta=dw.tableMetadataDict, selectedPage = 0, selectedPagination = 100))
 
 if __name__ == "__main__":
     app.run(debug=True)

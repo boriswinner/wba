@@ -3,12 +3,25 @@
 {% endblock %}
 
 {% block content %}
-{% for i in conflictsByTypes %}
-    {{ i.label }}
-    <br>
-    {% for j in i.data %}
-        {{ j }}
-        <br>
+    {% for i in conflictsByTypes %}
+        <div class="tree">
+            <ul>
+                <li>
+                    <a href="#">{{ i.label }}</a>
+                    <ul>
+                        {% for j in i.data %}
+                            <li>
+
+                                <a href = "#">{% with tableData = j, columnNames = columnNames %}
+                                    {% include 'tableGen-min.html' %}
+                                {% endwith %}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <br><br><br><br><br><br><br><br><br><br><br>
     {% endfor %}
-{% endfor %}
+
 {% endblock %}
