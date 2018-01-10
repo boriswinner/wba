@@ -240,6 +240,9 @@ def rowEdit():
             columnMetaNames.pop(i)
             selectedVals.pop(i)
 
+    editRow = [i + [None] if isinstance(i,list) else i for i in editRow]
+    qieriesIDS = [i+[None] for i in qieriesIDS]
+
     oldRowData = selectedVals.copy()
     if 'xColumnValue' in request.args.keys():
         xColumnValue = request.args.get('xColumnValue')
@@ -259,6 +262,7 @@ def editInTable():
     dw.init()
     dw.fullColumnNames = dw.tableMetadataObject.get_fields()
     newColumns = request.args.getlist(constants.editInputName)
+    newColumns = [i if i != 'None' else None for i in newColumns]
     if (dw.formInsertQuery()):
         globalvars.cur.execute(dw.insertQuery.query, dw.insertQuery.args)
         return redirect(url_for('view_table', tablesPicker=dw.tableName))
