@@ -1,9 +1,9 @@
 import dbconnector
 
 #constants
-sameGroupDifferentLessonQuery = """SELECT * FROM SCHED_ITEMS r CROSS JOIN SCHED_ITEMS t WHERE 
-r.LESSON_ID = t.LESSON_ID AND r.SUBJECT_ID = t.SUBJECT_ID AND r.GROUP_ID = t.GROUP_ID AND r.WEEKDAY_ID = t.WEEKDAY_ID 
-AND (r.AUDIENCE_ID != t.AUDIENCE_ID OR r.TEACHER_ID != t.TEACHER_ID OR r.TYPE_ID != t.TYPE_ID) """
+sameGroupDifferentLessonQuery = """SELECT %s, %s FROM SCHED_ITEMS r CROSS JOIN SCHED_ITEMS l %s %s WHERE 
+r.LESSON_ID = l.LESSON_ID AND r.SUBJECT_ID = l.SUBJECT_ID AND r.GROUP_ID = l.GROUP_ID AND r.WEEKDAY_ID = l.WEEKDAY_ID 
+AND (r.AUDIENCE_ID != l.AUDIENCE_ID OR r.TEACHER_ID != l.TEACHER_ID OR r.TYPE_ID != l.TYPE_ID) """
 
 class ConflictType():
     def __init__(self,query, name):
@@ -13,28 +13,29 @@ class ConflictType():
 
 
 class ConflictsSearcher():
-    def __init__(self, cur):
+    def __init__(self, cur, selectedColumnsR, tablesToJoinR, selectedColumnsL, tablesToJoinL):
         self.cur = cur
         self.isUpdated = False
         self.columnNames = cur.execute(dbconnector.GETCOLUMNNAMES % ("SCHED_ITEMS")).fetchall()
         self.columnNames = [str(i[0]).strip() for i in self.columnNames] * 2
         self.IDposition = self.columnNames.index("ID")
+        self.selectedColumnsR = selectedColumnsR
+        self.tablesToJoinR = tablesToJoinR
+        self.selectedColumnsL = selectedColumnsL
+        self.tablesToJoinL = tablesToJoinL
 
-    conflicts = [
+    conflictsByTypes = [
         ConflictType(sameGroupDifferentLessonQuery,"The same group has different lessons simultaneously")
     ]
 
     def findConflicts(self):
         if not self.isUpdated:
-            for i in self.conflicts:
-                i.data = self.cur.execute(i.query).fetchall()
+            for i in self.conflictsByTypes:
+                tJoinL = self.tablesToJoinL
+                for j in dbconnector.scheduleDB.tablesList:
+                    tJoinL = tJoinL.replace(j, j[:-2]+'qeoijo')
+                    tJoinL = tJoinL.replace(j[:-2]+'qeoijo', j + ' ' + j[:-2]+'qeoijo', 1)
+                    self.selectedColumnsL = self.selectedColumnsL.replace(j, j[:-2]+'qeoijo')
+                print(i.query % (self.selectedColumnsR, self.selectedColumnsL, self.tablesToJoinR, tJoinL))
+                i.data = self.cur.execute(i.query % (self.selectedColumnsR, self.selectedColumnsL, self.tablesToJoinR, tJoinL)).fetchall()
                 i.data = [ [k[:len(k)//2]] + [k[len(k)//2:]] for k in i.data]
-                t = []
-                prevID = None
-                for j in i.data:
-                    if (j[self.IDposition] == prevID):
-                        t[len(t)-1] += [j]
-                    else:
-                        t.append([j])
-                        prevID = j[self.IDposition]
-                i.data = t.copy()

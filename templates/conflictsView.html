@@ -1,0 +1,14 @@
+{% extends "filtersLayout.html" %}
+{% block functions %}
+{% endblock %}
+
+{% block content %}
+{% for i in conflictsByTypes %}
+    {{ i.label }}
+    <br>
+    {% for j in i.data %}
+        {{ j }}
+        <br>
+    {% endfor %}
+{% endfor %}
+{% endblock %}

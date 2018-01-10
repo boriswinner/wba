@@ -147,9 +147,10 @@ class dataWorker():
             if self.tableMetadataDict[i].type == 'ref':
                 self.selectQuery.replaceField(self.tableMetadataDict[i].refTable, i, self.tableMetadataDict[i].refKey,
                                               self.tableMetadataDict[i].refName)
-        for i in range(len(self.searchString)):
-            self.selectQuery.search(self.searchColumn[i], self.searchString[i], self.conditions[i],
-                                    self.logicalConnections[i])
+        if ('searchString') in locals():
+            for i in range(len(self.searchString)):
+                self.selectQuery.search(self.searchColumn[i], self.searchString[i], self.conditions[i],
+                                        self.logicalConnections[i])
         if ('orderColumn') in locals(): self.selectQuery.order(self.orderColumn)
 
     def formInsertQuery(self):
@@ -361,10 +362,23 @@ def viewSchedule():
 
 @app.route("/conflicts", methods=['GET', 'POST'])
 def viewConflicts():
-    conflictsSearcher = conflicts.ConflictsSearcher(globalvars.cur)
+    dw = dataWorker()
+    dw.tableName = constants.schedItemsTableName
+    dw.init()
+    dw.formSelectQuery()
+    tQueryR = dw.selectQuery.query.replace("Sched_Items","r")
+    queryPartsR = tQueryR.replace('from','SELECT').split("SELECT")
+    tQueryL = dw.selectQuery.query.replace("Sched_Items","l")
+    queryPartsL = tQueryL.replace('from','SELECT').split("SELECT")
+    conflictsSearcher = conflicts.ConflictsSearcher(globalvars.cur,queryPartsR[1],queryPartsR[2][2:],queryPartsL[1],queryPartsL[2][2:])
     conflictsSearcher.findConflicts()
-    #return (str(conflictsSearcher.columnNames))
-    return (str(conflictsSearcher.conflicts[0].data))
+
+    for i in conflictsSearcher.conflictsByTypes:
+        for j in range(len(i.data)):
+            if dw.tableMetadataDict[dw.columnNames[j]].type == 'key':
+                i.data.append(i.data[j])
+
+    return (render_template("conflictsView.html",conflictsByTypes = conflictsSearcher.conflictsByTypes))
 
 if __name__ == "__main__":
     app.run(debug=True)
