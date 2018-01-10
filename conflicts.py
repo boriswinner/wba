@@ -21,8 +21,10 @@ class ConflictsSearcher():
         self.cur = cur
         self.isUpdated = False
         self.columnNames = cur.execute(dbconnector.GETCOLUMNNAMES % ("SCHED_ITEMS")).fetchall()
-        self.columnNames = [str(i[0]).strip() for i in self.columnNames] * 2
+        self.columnNames = [str(i[0]).strip() for i in self.columnNames]
         self.IDposition = self.columnNames.index("ID")
+        self.IDposition2 = self.IDposition+len(self.columnNames)
+        self.columnNames *= 2
 
     def setSelectedColumns(self,selectedColumnsR, tablesToJoinR, selectedColumnsL, tablesToJoinL):
         self.selectedColumnsR = selectedColumnsR
@@ -47,5 +49,10 @@ class ConflictsSearcher():
                     tJoinL = tJoinL.replace(j[:-2]+'qeoijo', j + ' ' + j[:-2]+'qeoijo', 1)
                     self.selectedColumnsL = self.selectedColumnsL.replace(j, j[:-2]+'qeoijo')
                 i.data = self.cur.execute(i.query % (self.selectedColumnsR, self.selectedColumnsL, self.tablesToJoinR, tJoinL)).fetchall()
+                i.data = [list(k) for k in i.data]
+                for k in i.data[:]:
+                    k = list(k)
+                    if (k[self.IDposition] > k[self.IDposition2]):
+                        i.data.remove(k)
                 i.data = [ [k[:len(k)//2]] + [k[len(k)//2:]] for k in i.data]
         self.isUpdated = True
