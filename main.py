@@ -3,6 +3,7 @@ import sys
 import metadata
 import queryconstructor
 import dbconnector
+import conflicts
 from flask import Flask, url_for, render_template, request, redirect
 from flask_jsglue import JSGlue
 from collections import OrderedDict
@@ -357,6 +358,13 @@ def viewSchedule():
                            selectedStrings=dw.searchString, visibleColumnNames=visibleColumnNames,
                            visibleColumnNumbers=visibleColumnNumbers, tableName = dw.tableName)
 
+
+@app.route("/conflicts", methods=['GET', 'POST'])
+def viewConflicts():
+    conflictsSearcher = conflicts.ConflictsSearcher(globalvars.cur)
+    conflictsSearcher.findConflicts()
+    #return (str(conflictsSearcher.columnNames))
+    return (str(conflictsSearcher.conflicts[0].data))
 
 if __name__ == "__main__":
     app.run(debug=True)
