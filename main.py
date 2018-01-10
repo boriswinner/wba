@@ -346,7 +346,7 @@ def viewSchedule():
     dw.columnNames.remove(t1)
     if (t1 != t2): dw.columnNames.remove(t2)
 
-    scheduleTable = OrderedDict.fromkeys(i[dw.yOrderID] for i in tableData)
+    scheduleTable = OrderedDict.fromkeys(i[dw.yOrderID] for i in sorted(tableData,key = lambda y: y[dw.yOrderID] if y[dw.yOrderID] is not None else chr(sys.maxunicode)))
     for key in scheduleTable:
         scheduleTable[key] = dict.fromkeys([i[dw.xOrderID] for i in sorted(tableData,key = lambda x: x[dw.xOrderID] if x[dw.xOrderID] is not None else chr(sys.maxunicode))])
 
