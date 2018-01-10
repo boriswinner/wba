@@ -75,6 +75,17 @@ app = create_app()
 def inject_globals():
     return constants.get_constants()
 
+import urllib
+from markupsafe import Markup
+
+@app.template_filter('urlencode')
+def urlencode_filter(s):
+    if type(s) == 'Markup':
+        s = s.unescape()
+    s = s.encode('utf8')
+    s = urllib.parse.quote_plus(s)
+    return Markup(s)
+
 
 class dataWorker():
 
