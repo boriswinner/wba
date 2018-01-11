@@ -9,6 +9,8 @@ differentGroupsSameLessonQuery = """SELECT %s, %s FROM SCHED_ITEMS r CROSS JOIN 
 r.LESSON_ID = l.LESSON_ID AND r.GROUP_ID != l.GROUP_ID AND r.WEEKDAY_ID = l.WEEKDAY_ID 
 AND (r.AUDIENCE_ID = l.AUDIENCE_ID OR r.TEACHER_ID = l.TEACHER_ID) """
 
+aliasSuffix = 'qeoijo'
+
 class ConflictType():
     def __init__(self,query, name):
         self.query = query
@@ -45,14 +47,13 @@ class ConflictsSearcher():
             for i in self.conflictsByTypes:
                 tJoinL = self.tablesToJoinL
                 for j in dbconnector.scheduleDB.tablesList:
-                    tJoinL = tJoinL.replace(j, j[:-2]+'qeoijo')
-                    tJoinL = tJoinL.replace(j[:-2]+'qeoijo', j + ' ' + j[:-2]+'qeoijo', 1)
-                    self.selectedColumnsL = self.selectedColumnsL.replace(j, j[:-2]+'qeoijo')
+                    tJoinL = tJoinL.replace(j, j[:-2]+aliasSuffix)
+                    tJoinL = tJoinL.replace(j[:-2]+aliasSuffix, j + ' ' + j[:-2]+aliasSuffix, 1)
+                    self.selectedColumnsL = self.selectedColumnsL.replace(j, j[:-2]+aliasSuffix)
                 i.data = self.cur.execute(i.query % (self.selectedColumnsR, self.selectedColumnsL, self.tablesToJoinR, tJoinL)).fetchall()
                 i.data = [list(k) for k in i.data]
                 for k in i.data[:]:
-                    k = list(k)
                     if (k[self.IDposition] > k[self.IDposition2]):
                         i.data.remove(k)
-                i.data = [ [k[:len(k)//2]] + [k[len(k)//2:]] for k in i.data]
+                i.data = [ [k[:len(k)//2]] + [k[len(k)//2:] ] for k in i.data]
         self.isUpdated = True
