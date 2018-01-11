@@ -53,40 +53,6 @@ class GlobalVars:
 constants = Constants()
 globalvars = GlobalVars()
 
-
-def create_app():
-    app = Flask(__name__)
-    jsglue = JSGlue(app)
-
-    def run_on_start():
-        dbconnector.scheduleDB.connect_to_database()
-        dbconnector.scheduleDB.set_tables_list()
-        globalvars.cur = dbconnector.scheduleDB.cur
-        globalvars.conflictsSearcher = conflicts.ConflictsSearcher(globalvars.cur)
-
-    run_on_start()
-    return app
-
-
-app = create_app()
-
-
-@app.context_processor
-def inject_globals():
-    return constants.get_constants()
-
-import urllib
-from markupsafe import Markup
-
-@app.template_filter('urlencode')
-def urlencode_filter(s):
-    if type(s) == 'Markup':
-        s = s.unescape()
-    s = s.encode('utf8')
-    s = urllib.parse.quote_plus(s)
-    return Markup(s)
-
-
 class dataWorker():
 
     def setDefaultTableName(self):
@@ -182,6 +148,53 @@ class dataWorker():
             return True
         else:
             return False
+
+
+def create_app():
+    app = Flask(__name__)
+    jsglue = JSGlue(app)
+
+    def run_on_start():
+        dbconnector.scheduleDB.connect_to_database()
+        dbconnector.scheduleDB.set_tables_list()
+        globalvars.cur = dbconnector.scheduleDB.cur
+        globalvars.conflictsSearcher = conflicts.ConflictsSearcher(globalvars.cur)
+        dwSchedule = dataWorker()
+        dwSchedule.tableName = constants.schedItemsTableName
+        dwSchedule.init()
+        dwSchedule.formSelectQuery()
+        tQueryR = dwSchedule.selectQuery.query.replace("Sched_Items", "r")
+        queryPartsR = tQueryR.replace('from', 'SELECT').split("SELECT")
+        tQueryL = dwSchedule.selectQuery.query.replace("Sched_Items", "l")
+        queryPartsL = tQueryL.replace('from', 'SELECT').split("SELECT")
+        globalvars.conflictsSearcher.setSelectedColumns(queryPartsR[1], queryPartsR[2][2:], queryPartsL[1],
+                                                        queryPartsL[2][2:])
+        globalvars.conflictsSearcher.findConflicts()
+
+
+    run_on_start()
+    return app
+
+
+app = create_app()
+
+
+@app.context_processor
+def inject_globals():
+    return constants.get_constants()
+
+import urllib
+from markupsafe import Markup
+
+@app.template_filter('urlencode')
+def urlencode_filter(s):
+    if type(s) == 'Markup':
+        s = s.unescape()
+    s = s.encode('utf8')
+    s = urllib.parse.quote_plus(s)
+    return Markup(s)
+
+
 
 
 @app.route("/", methods=['GET', 'POST'])
