@@ -388,7 +388,7 @@ def viewSchedule():
                            columnPickerElements=dw.selectQuery.currentColumns, selectedColumns=dw.searchColumn,
                            selectedConditions=dw.conditions, selectedLogicalConnections=dw.logicalConnections,
                            selectedStrings=dw.searchString, visibleColumnNames=visibleColumnNames,
-                           visibleColumnNumbers=visibleColumnNumbers, tableName = dw.tableName)
+                           visibleColumnNumbers=visibleColumnNumbers, tableName = dw.tableName, conflictsByTypes = globalvars.conflictsSearcher.conflictsByTypes, IDposition = globalvars.conflictsSearcher.IDposition, IDposition2 = globalvars.conflictsSearcher.IDposition2)
 
 
 @app.route("/conflicts", methods=['GET', 'POST'])

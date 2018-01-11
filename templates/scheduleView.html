@@ -5,8 +5,9 @@
     <script>
         $(document).ready(function(){
             $('.showhide').click(function () {
-                name = $(this).attr("name");
-                objects = $(".tohide[name="+name+"]");
+                name = $(this).attr("id");
+                console.log(name);
+                objects = $(".tohide[id="+name+"]");
                 if(objects.hasClass("hided")) {
                     $(this).text('Hide');
                     objects.removeClass('hided');
@@ -82,7 +83,7 @@
         <button type="submit" class="btn btn-default">{{ formButtonText }}</button>
     </form>
     <table class="table table-bordered">
-    {% set cellsCntr = [0] %}
+        {% set cellsCntr = [0] %}
         <tr>
             <th>{{ xName }}<br>-----<br>{{ yName }}</th>
             {% set iterated = [0] %}
@@ -104,7 +105,7 @@
                     <td draggable="true" ondrop="drop(event)" ondragover="allowDrop(event)" id = "tdDrop{{ cellsCntr[0] }}" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]]}}">
                         {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}
                         <div id = "wrap">
-                            <table {% if value1 is not none %}name="cell{{ cnt[0] }}"{% endif %} class="tohide {% if hideCells %}hided{% endif %} table table-bordered">
+                            <table {% if value1 is not none %}id="cell{{ cnt[0] }}"{% endif %} class="tohide {% if hideCells %}hided{% endif %} table table-bordered">
                                 {% if not hideHeaders and value1 is not none%}
                                     <thead>
                                     <tr>
@@ -126,19 +127,33 @@
                                                     <a href ="{{ url_for('rowEdit', editID=i[i|length-1], returnURL=request.url, tableName = tableName) }}">Edit</a></td>
                                                 <td> {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}
                                                     <a href ="{{ url_for('view_table',deleteID=i[i|length-1], tablesPicker=tableName) }}">Delete</a></td>
+
+                                                {% set hasConflicts = [0] %}
+                                                <td id="conflicts{{ cellsCntr[0] }}" class="tohide {% if hideCells %}hided{% endif %}">{% for m in conflictsByTypes %}
+                                                    {% for z in m.data %}
+                                                        {% if z[0][IDposition] == i[i|length-1] %}
+                                                            {{ m.label }}
+                                                            {% with tableData = z, columnNames = columnNames %}
+                                                                {% include 'tableGen-min.html' %}
+                                                                {% if hasConflicts.append(hasConflicts.pop() + 1) %}{% endif %}
+                                                            {% endwith %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endfor %}</td>
+                                                {% if hasConflicts[0] > 0 %}<td>Conflicts:<br><a href="#" class="showhide" id="conflicts{{ cellsCntr[0] }}">{% if hideCells %}Show{% else %}Hide{% endif %}</a></td>{% endif %}
                                             </tr>
                                         {% endfor %}
                                     {% else %}
                                         <tr >
                                             <td draggable="true" ondrop="drop(event)" ondragover="allowDrop(event)" data-yName = "{{ key }}" data-xName = "{{ yNames[yCntr[0]]}}" id = "emptyDrop{{ cellsCntr[0] }}"> </td></tr>
-                                         {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}
+                                        {% if cellsCntr.append(cellsCntr.pop() + 1) %}{% endif %}
                                     {% endif %}
                                 </tr>
                                 </tbody>
                             </table>
-                        {% if value1 is not none %}
-                            <a href="#" class="showhide" name="cell{{ cnt[0] }}">{% if hideCells %}Show{% else %}Hide{% endif %}</a>
-                        {% endif %}
+                            {% if value1 is not none %}
+                                <a href="#" class="showhide" id="cell{{ cnt[0] }}">{% if hideCells %}Show{% else %}Hide{% endif %}</a>
+                            {% endif %}
                             {% if cnt.append(cnt.pop() + 1) %}{% endif %}
                         </div>
                     </td>
