@@ -207,9 +207,11 @@ def view_table():
         if (dw.formInsertQuery()):
             globalvars.cur.execute(dw.insertQuery.query, dw.insertQuery.args)
             globalvars.conflictsSearcher.setOutdated()
+            globalvars.conflictsSearcher.findConflicts()
         if (dw.formDeleteQuery()):
             globalvars.cur.execute(dw.deleteQuery.query, dw.deleteQuery.args)
             globalvars.conflictsSearcher.setOutdated()
+            globalvars.conflictsSearcher.findConflicts()
         globalvars.cur.execute(dw.selectQuery.query, dw.selectQuery.args)
         globalvars.tableData = globalvars.cur.fetchall()
         incorrectQuery = 0
@@ -303,6 +305,7 @@ def editInTable():
     if (dw.formInsertQuery()):
         globalvars.cur.execute(dw.insertQuery.query, dw.insertQuery.args)
         globalvars.conflictsSearcher.setOutdated()
+        globalvars.conflictsSearcher.findConflicts()
         return redirect(url_for('view_table', tablesPicker=dw.tableName))
 
     columnsDataBeforeEdit = request.args.getlist('columns')[0]
@@ -328,6 +331,7 @@ def editInTable():
     try:
         globalvars.cur.execute(query.query, query.args)
         globalvars.conflictsSearcher.setOutdated()
+        globalvars.conflictsSearcher.findConflicts()
     except:
         return render_template('updateResult.html', mode='incorrect')
     returnURL = request.args.get('returnURL')
@@ -397,12 +401,6 @@ def viewConflicts():
     dw.tableName = constants.schedItemsTableName
     dw.init()
     dw.formSelectQuery()
-    tQueryR = dw.selectQuery.query.replace("Sched_Items","r")
-    queryPartsR = tQueryR.replace('from','SELECT').split("SELECT")
-    tQueryL = dw.selectQuery.query.replace("Sched_Items","l")
-    queryPartsL = tQueryL.replace('from','SELECT').split("SELECT")
-    globalvars.conflictsSearcher.setSelectedColumns(queryPartsR[1],queryPartsR[2][2:],queryPartsL[1],queryPartsL[2][2:])
-    globalvars.conflictsSearcher.findConflicts()
 
     return (render_template("conflictsView.html",conflictsByTypes = globalvars.conflictsSearcher.conflictsByTypes, columnNames = dw.columnNames, meta=dw.tableMetadataDict, selectedPage = 0, selectedPagination = 100))
 
