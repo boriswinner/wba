@@ -129,7 +129,7 @@
                                                     <a href ="{{ url_for('view_table',deleteID=i[i|length-1], tablesPicker=tableName) }}">Delete</a></td>
 
                                                 {% set hasConflicts = [0] %}
-                                                <td id="conflicts{{ cellsCntr[0] }}" class="tohide {% if hideCells %}hided{% endif %}">{% for m in conflictsByTypes %}
+                                                <td id="conflicts{{ cellsCntr[0] }}" class="tohide hided">{% for m in conflictsByTypes %}
                                                     {% for z in m.data %}
                                                         {% if z[0][IDposition] == i[i|length-1] %}
                                                             {{ m.label }}
@@ -140,7 +140,7 @@
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% endfor %}</td>
-                                                {% if hasConflicts[0] > 0 %}<td>Conflicts:<br><a href="#" class="showhide" id="conflicts{{ cellsCntr[0] }}">{% if hideCells %}Show{% else %}Hide{% endif %}</a></td>{% endif %}
+                                                {% if hasConflicts[0] > 0 %}<td>Conflicts:<br><a href="#" class="showhide" id="conflicts{{ cellsCntr[0] }}">Show</a></td>{% endif %}
                                             </tr>
                                         {% endfor %}
                                     {% else %}
